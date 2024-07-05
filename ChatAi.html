@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Chat AI</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        #chatbox {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            height: 400px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #user-input, #model-input {
+            width: 300px;
+            margin-bottom: 10px;
+        }
+        .model-button {
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <input type="text" id="model-input" placeholder="Type AI model name...">
+        <button onclick="searchModel()">Search Model</button>
+    </div>
+    <div id="model-selection"></div>
+    <div id="confirmation" style="display: none;">
+        <p>Apakah kamu yakin ingin chat dengan <span id="selected-model"></span>?</p>
+        <button onclick="confirmChat()">Ya</button>
+        <button onclick="cancelChat()">Tidak</button>
+    </div>
+    <div id="chat-section" style="display: none;">
+        <div id="chatbox"></div>
+        <input type="text" id="user-input" placeholder="Type your message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        let sessionId;
+        let modelId;
+
+        async function searchModel() {
+            const modelInput = document.getElementById('model-input').value;
+            // API call to search for the model
+            const searchApiUrl = 'https://api.maelyn.tech/api/cai/search?q=' + encodeURIComponent(modelInput) + '&apikey=CloneTerial';
+            try {
+                const response = await fetch(searchApiUrl);
+                const data = await response.json();
+                if (data.status === "Success") {
+                    displayModelOptions(data.result);
+                } else {
+                    alert('Model not found');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function displayModelOptions(models) {
+            const modelSelectionDiv = document.getElementById('model-selection');
+            modelSelectionDiv.innerHTML = '';
+            models.forEach(model => {
+                const button = document.createElement('button');
+                button.innerText = model.char_name;
+                button.classList.add('model-button');
+                button.onclick = () => showConfirmation(model);
+                modelSelectionDiv.appendChild(button);
+            });
+        }
+
+        function showConfirmation(model) {
+            const selectedModelSpan = document.getElementById('selected-model');
+            selectedModelSpan.innerText = model.char_name;
+            modelId = model.char_id;
+            document.getElementById('model-selection').style.display = 'none';
+            document.getElementById('confirmation').style.display = 'block';
+        }
+
+        async function confirmChat() {
+            // API call to create a new session
+            const createSessionApiUrl = 'https://api.maelyn.tech/api/cai/createroom?charid=' + modelId + '&apikey=CloneTerial';
+            try {
+                const response = await fetch(createSessionApiUrl);
+                const data = await response.json();
+                if (data.status === "Success") {
+                    sessionId = data.result.chat.chat_id;
+                    document.getElementById('confirmation').style.display = 'none';
+                    document.getElementById('chat-section').style.display = 'block';
+                } else {
+                    alert('Failed to create session');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function cancelChat() {
+            document.getElementById('confirmation').style.display = 'none';
+            document.getElementById('model-selection').style.display = 'block';
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            const chatbox = document.getElementById('chatbox');
+
+            if (userInput.trim() === '') {
+                return;
+            }
+
+            // Display the user's message
+            chatbox.innerHTML += `<div><strong>You:</strong> ${userInput}</div>`;
+
+            // Clear the input field
+            document.getElementById('user-input').value = '';
+
+            // API call to chat with the selected AI model
+            const chatApiUrl = 'https://api.maelyn.tech/api/cai/chat?q=' + encodeURIComponent(userInput) +
+                '&charid=' + modelId + '&chatid=' + sessionId + '&apikey=CloneTerial';
+            try {
+                const response = await fetch(chatApiUrl);
+                const data = await response.json();
+
+                if (data.status === "Success") {
+                    const aiResponse = data.result.candidates[0].raw_content;
+                    // Display the AI's response
+                    chatbox.innerHTML += `<div><strong>AI:</strong> ${aiResponse}</div>`;
+                } else {
+                    chatbox.innerHTML += `<div><strong>AI:</strong> Sorry, something went wrong.</div>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                chatbox.innerHTML += `<div><strong>AI:</strong> Sorry, something went wrong.</div>`;
+            }
+
+            // Scroll to the bottom of the chatbox
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+    </script>
+</body>
+</html>
