@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Music Search and Player</title>
+</head>
+<body>
+    <h1>Music Search and Player</h1>
+    <input type="text" id="search-input" placeholder="Search for music...">
+    <button onclick="searchMusic()">Search</button>
+    <div id="results"></div>
+    <audio id="player" controls></audio>
+
+    <script>
+        async function searchMusic() {
+            const query = document.getElementById('search-input').value;
+            const apiKey = 'CloneTerial';
+            const apiUrl = `https://api.maelyn.tech/api/spotify/search?q=${encodeURIComponent(query)}&apikey=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status === 'Success' && data.code === 200) {
+                    displayResults(data.result.tracks);
+                } else {
+                    document.getElementById('results').innerText = 'No results found.';
+                }
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('results').innerText = 'An error occurred while searching for music.';
+            }
+        }
+
+        function displayResults(tracks) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            tracks.forEach(track => {
+                const trackDiv = document.createElement('div');
+                trackDiv.innerHTML = `
+                    <p><strong>${track.title}</strong> by ${track.artists}</p>
+                    <p>Release Date: ${track.release}</p>
+                    <a href="${track.link_spotify}" target="_blank">Listen on Spotify</a>
+                    <button onclick="playPreview('${track.link_preview}')">Play Preview</button>
+                    <button onclick="downloadPreview('${track.link_preview}', '${track.title}')">Download Preview</button>
+                    <button onclick="downloadFullTrack('${track.link_spotify}', '${track.title}')">Download Full Track</button>
+                    <hr>
+                `;
+                resultsDiv.appendChild(trackDiv);
+            });
+        }
+
+        function playPreview(previewUrl) {
+            const player = document.getElementById('player');
+            player.src = previewUrl;
+            player.play();
+        }
+
+        function downloadPreview(previewUrl, trackTitle) {
+            const link = document.createElement('a');
+            link.href = previewUrl;
+            link.download = `${trackTitle}.mp3`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function downloadFullTrack(spotifyUrl, trackTitle) {
+            const apiKey = 'CloneTerial';
+            const apiUrl = `https://api.maelyn.tech/api/spotify/download?url=${encodeURIComponent(spotifyUrl)}&apikey=${apiKey}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status === 'Success' && data.code === 200) {
+                    const fullTrackUrl = data.result.name;
+                    const link = document.createElement('a');
+                    link.href = fullTrackUrl;
+                    link.download = `${trackTitle}.mp3`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } else {
+                    console.error('Failed to fetch full track download link.');
+                }
+            } catch (error) {
+                console.error('Error fetching full track download link:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+
