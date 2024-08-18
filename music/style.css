@@ -1,0 +1,80 @@
+body{
+  
+  background-color: #393e46;
+}
+.textColor{
+  color: white;
+  text-align: center;
+}
+
+button {
+  padding: 10px 20px; /* Ukuran tombol */
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff; /* Warna tombol */
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3; /* Warna tombol saat hover */
+}
+.container{
+  margin: 0 auto;
+  text-align: center;
+}
+.searchP{
+  width: 12rem;
+  height: 2rem;
+  border-radius: 2rem;
+  outline: none;
+  text-align: center;
+  display: block;
+  display: inline-block;
+  box-shadow: 8px 8px 16px rgba(1,1,1,1);
+  border: 1px solid #ccc;
+}
+input:focus {
+  outline: 2px solid cyan; /* Mengubah warna outline menjadi biru */
+}
+.card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  margin: 16px;
+  background-color: #fff;
+  max-width: 400px;
+  
+}
+
+.card p {
+  margin: 8px 0;
+}
+
+.card a {
+  display: inline-block;
+  margin-top: 8px;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.card a:hover {
+  text-decoration: underline;
+}
+
+.card button {
+  display: inline-block;
+  padding: 8px 16px;
+  margin-top: 8px;
+  margin-right: 8px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.card button:hover {
+  background-color: #0056b3;
+}
