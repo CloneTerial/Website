@@ -1,7 +1,51 @@
+.navStyle{
+  margin-top: 1rem;
+  margin-left: 1rem;
+  outline: 2px solid black;
+  border-radius: 2px;
+  text-align: center;
+}
+.sosmed{
+  width: 2rem;
+  height: 2rem;
+  margin-left: 1rem;
+}
+     .skills-section {
+            display: flex;
+            justify-content: center;
+            margin: 20px;
+        }
+        .cards{
+            background-color: black;
+            border-radius: 5px;
+            outline: 2px solid white;
+            color: white;
+            width: 300px;
+            padding: 20px;
+            text-align: left;
+        }
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .skill {
+            margin: 10px;
+            flex: 1;
+            text-align: center;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            display: block;
+            margin: 0 auto 10px;
+        }
 .cardS {
   background-color: #4d4855;
 background-image: linear-gradient(147deg, #4d4855 0%, #000000 74%);
 border-radius: 8%;
+outline:2px solid white;
 padding-bottom: 30px ;
 }
 body{
@@ -10,6 +54,11 @@ body{
 @font-face {
   font-family: 'gecko'; /* Nama untuk font */
   src: url('Gecko-Lunch.ttf') format('truetype'); /* URL berkas font dan format */
+}
+
+@font-face {
+  font-family: 'altone'; /* Nama untuk font */
+  src: url('Altone_Trial-Bold.ttf') format('truetype'); /* URL berkas font dan format */
 }
 .container{
   transform: scale(1.2);
@@ -24,7 +73,7 @@ body{
   
 }
 .slider {
-  text-align: center;
+  text-align: webkitp;
   overflow: hidden;
   margin: auto;
 }
@@ -113,12 +162,42 @@ body{
 .slides > .cardm {
   flex: 0 0 auto;
 }
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+}
 
+.spinner {
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #3498db;
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+ 
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+ 
 @media screen and (max-width: 700px) {
   .slider {
    width: 300px;
   text-align: center;
   overflow: hidden;
   margin: auto;
+  }
+  .slider{
+    justify-content: space-between;
   }
 }
