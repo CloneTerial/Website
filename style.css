@@ -5,6 +5,40 @@
   border-radius: 2px;
   text-align: center;
 }
+.nav-item:hover{
+  color: white;
+}
+ 
+  footer {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+             width:100%;
+            text-align: center;
+        }
+
+        .footer-contact {
+             
+            margin: auto;
+        }
+
+        .footer-contact h2 {
+            color: #fff;
+        }
+
+        .footer-contact p {
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        .footer-contact a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .footer-contact a:hover {
+            text-decoration: underline;
+        }
 .sosmed{
   width: 2rem;
   height: 2rem;
@@ -24,6 +58,19 @@
             padding: 20px;
             text-align: left;
         }
+       .about{
+            background-color: black;
+            border-radius: 5px;
+            outline: 2px solid white;
+            color: white;
+            width: 19rem;
+            display: flex;
+            justify-content: center;
+            
+        }
+        .carda{
+          text-align: left; 
+        }
         .skills {
             display: flex;
             flex-wrap: wrap;
@@ -41,9 +88,10 @@
             display: block;
             margin: 0 auto 10px;
         }
+        
 .cardS {
   background-color: #4d4855;
-background-image: linear-gradient(147deg, #4d4855 0%, #000000 74%);
+background-image: linear-gradient(147deg, #000000 0%, #000420 74%);
 border-radius: 8%;
 outline:2px solid white;
 padding-bottom: 30px ;
@@ -67,7 +115,16 @@ body{
   padding-bottom: 30px;
   
 }
+/* Gambar bulat dengan outline default (tanpa outline) */
+#uu {
+     
+    transition: box-shadow 0.3s ease; /* Transisi halus untuk outline */
+}
 
+/* Gambar dengan outline hijau saat musik diputar */
+#uu.playing {
+    box-shadow: 0 0 10px 5px white; /* Outline hijau */
+}
 .slide1{
   background-image: url(1.jpeg);
   
@@ -113,19 +170,7 @@ body{
 .slides > .card:target {
 /*   transform: scale(0.8); */
 }
-.author-info {
-  background: rgba(0, 0, 0, 0.75);
-  padding: 0.75rem;
-  text-align: center;
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  margin: 0;
-}
-.author-info a {
-  color: white;
-}
+
 
 .slider > a {
   display: inline-flex;
@@ -144,6 +189,8 @@ body{
 .slider > a:focus {
   background: #000;
 }
+
+
 /* Don't need button navigation */
 .project1{
   
@@ -157,10 +204,33 @@ body{
 }
 .cardm{
   width: 18rem;
+  background-color: black;
+  color: white;
   margin-left: 30px;
+  padding: 7px;
+  border: 2px solid white;
 }
 .slides > .cardm {
   flex: 0 0 auto;
+}
+
+   .typewrite {
+  display: inline-block;
+  overflow: hidden; /* Ensures the text area is limited to a defined width */
+  white-space: nowrap; /* Prevents text from wrapping to the next line */
+  border-right: 0.15em solid #fff; /* The cursor effect */
+  
+  animation: typing 2s steps(20, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: #fff; }
 }
 #loading-screen {
     position: fixed;
@@ -189,15 +259,29 @@ body{
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
- 
-@media screen and (max-width: 700px) {
-  .slider {
-   width: 300px;
-  text-align: center;
-  overflow: hidden;
-  margin: auto;
+  .about-me {
+            width: 22rem;
+            margin: auto;
+            outline: 2px solid white;
+            background-color: black;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .about-me h2 {
+            color: white;
+        }
+        .about-me p {
+            color: white;
+            line-height: 1.6;
+        }
+  .altone{
+    font-family: altone;
   }
-  .slider{
-    justify-content: space-between;
+@media screen and (max-width: 1200px) {
+  .slider {
+  width: 300px;
+  text-align: center;
+   
   }
 }
