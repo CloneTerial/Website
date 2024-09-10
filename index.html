@@ -253,6 +253,27 @@
   <script>
     AOS.init();
   </script>
-
+<script>
+  
+  document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
+    link.addEventListener('click', function () {
+      var navbarToggler = document.querySelector('.navbar-toggler');
+      var navbarCollapse = document.querySelector('.navbar-collapse');
+      if (navbarCollapse.classList.contains('show')) {
+        navbarToggler.click(); 
+      }
+    });
+  });
+  document.addEventListener('click', function (event) {
+    var navbarToggler = document.querySelector('.navbar-toggler');
+    var navbarCollapse = document.querySelector('.navbar-collapse');
+    var isNavbarOpen = navbarCollapse.classList.contains('show');
+    var isClickInsideNavbar = navbarCollapse.contains(event.target) || navbarToggler.contains(event.target);
+    
+    if (isNavbarOpen && !isClickInsideNavbar) {
+      navbarToggler.click(); 
+    }
+  });
+</script>
   </body>
 </html>
