@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
  // Inisialisasi variabel audio dan status pemutaran
-let currentAudio = new Audio('./est ce que tu maimes.mp3'); // Path ke file audio lokal
+let currentAudio = new Audio('./song.MP3'); // Path ke file audio lokal
 let isPlaying = false;
 function playPreview() {
     if (isPlaying) {
