@@ -35,7 +35,7 @@ currentAudio.onended = () => {
 };
 
 // Memeriksa jika layar dalam desktop mode
-if (window.innerWidth >= 1320) {
+if (window.innerWidth >= 768) {
     // Menampilkan popup saat halaman dibuka di desktop
     document.getElementById('popup').style.display = 'flex';
 }
