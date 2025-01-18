@@ -8,9 +8,6 @@
 .nav-item:hover{
   color: white;
 }
- 
-
- 
 .popup {
     display: none;
     position: fixed;
@@ -23,8 +20,6 @@
     align-items: center;
     z-index: 1000; /* Pastikan pop-up berada di atas konten */
 }
-
-/* Pop-up content */
 .popup-content {
     background-color: white;
     padding: 40px;
