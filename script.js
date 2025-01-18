@@ -1,31 +1,26 @@
 
 document.addEventListener("DOMContentLoaded", function() {
-    var loadingScreen = document.getElementById("loading-screen");
-    var content = document.getElementById("content");
+    window.onload = function() {
+        var loadingScreen = document.getElementById("loading-screen");
+        var content = document.getElementById("content");
 
-    // Hide the loading screen
-    loadingScreen.style.display = "none";
-    // Show the main content
-    content.style.display = "block"; // Pastikan konten muncul jika semula disembunyikan
-
-    // Scroll to top
-    window.scrollTo(0, 0);
+        // Hide the loading screen
+        loadingScreen.style.display = "none";
+        // Show the main content
+         
+    };
 });
-document.getElementById('uu').classList.add('outline');
+
  // Inisialisasi variabel audio dan status pemutaran
-let currentAudio = new Audio('./est ce que tu maimes.mp3'); // Path ke file audio lokal
-let outline = true;
+let currentAudio = new Audio('./song.MP3'); // Path ke file audio lokal
 let isPlaying = false;
 function playPreview() {
-    if (isPlaying && outline) {
+    if (isPlaying) {
         currentAudio.pause();
-        document.getElementById('uu').classList.remove('playing'); // Menghapus outline saat outline
-        document.getElementById('uu').classList.add('outline');
+        document.getElementById('uu').classList.remove('playing'); // Menghapus outline saat dipause
     } else {
         currentAudio.play();
-        document.getElementById('uu').classList.add('playing');
-         document.getElementById('uu').classList.remove('outline');
-        // Menambahkan outline saat diputar
+        document.getElementById('uu').classList.add('playing'); // Menambahkan outline saat diputar
     }
     isPlaying = !isPlaying; // Toggle status pemutaran
 }

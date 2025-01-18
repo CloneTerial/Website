@@ -3,6 +3,7 @@
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
+    <meta name="theme-color" content="#000000">
     <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <script type="application/ld+json">
@@ -14,9 +15,6 @@
   "logo": "https://www.cloneterial.site/favicon.ico"
 }
 </script>
-    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, proxy-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
 <link rel="manifest" href="/site.webmanifest">
@@ -41,20 +39,11 @@
     <title>portfolio</title>
   </head>
   <body>
+    <!-- Loading -->
     <div id="loading-screen">
         <div class="spinner"></div>
         <p>Loading...</p>
     </div>
-     <div id="popup" class="popup">
-        <p>Situs ini disain untuk tampilan mobile. Silakan ubah ke mode mobile untuk pengalaman yang lebih baik.</p>
-        <button id="close-tab">Close Tab</button>
-        <button id="open-anywhere">Open Anywhere</button>
-    </div>
-    
-    <div id="cont">
-    <!-- Loading -->
-    
-    <div id="scroll-progress"></div>
     <!-- akhir loading -->
     <!-- navbar -->
  <nav class="navbar fixed-top navbar-dark bg-dark" data-aos="fade-down" data-aos-duration="1000">
@@ -95,10 +84,10 @@
   <div class="card-body">
     <p data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="1000"class="fs-6 text-secondary m-0 pb-0">AI ENGINEER</p>
     <h1 class="fs-4 col-md-12 typewrite" style="font-family: gecko;">Andhika Yuga Pratama</h1>
-    <p data-aos="fade-right" data-aos-duration="1000" class="card-text" style="font-family: 'crimson text'; font-size: 0.9rem;">Saya seorang full stack developer pemula yang sedang mengembangkan kemampuan di frontend dan backend, saya berfokus pada pembuatan solusi perangkat lunak yang efektif.</p>
+    <p data-aos="fade-right" data-aos-duration="1000" class="card-text" style="font-family: 'crimson text';">Saya seorang fullstack developer berpengalaman 5+ tahun. Menguasai frontend, backend, dan berkomitmen pada solusi perangkat lunak unggul.</p>
   </div>
   <div class="sosmedS">
-   <a href="https://www.instagram.com/xy.c4">
+   <a href="https://www.instagram.com/tobangado155?igsh=MXZ5MG03MGtuNmwxMQ==">
    <img data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="500" class="sosmed" src="https://img.icons8.com/?size=100&id=84884&format=png&color=FFFFFF"></a>
  <a href="https://github.com/CloneTerial"><img data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="700" class="sosmed" src="https://img.icons8.com/?size=100&id=20675&format=png&color=FFFFFF"></a>
   <a href="https://x.com/Clone193?t=1G-BozMEF3xDOFQ0qvnQxg&s=08"><img data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="900" src="https://img.icons8.com/?size=100&id=ud9VVQzOPag8&format=png&color=FFFFFF" class="sosmed"> </a>
@@ -106,6 +95,7 @@
    <img data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="1100" src="https://img.icons8.com/?size=100&id=99290&format=png&color=FFFFFF" class="sosmed">
  </a> 
  <a href="https://www.youtube.com/@udinchanel2016" ><img data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="1300" src="https://img.icons8.com/?size=100&id=85433&format=png&color=FFFFFF" class="sosmed"></a>
+</div>
 </div>
 </div>
 </div>
@@ -215,7 +205,7 @@
             <p><strong>Email:</strong> <a href="mailto:ctpedia029@gmail.com">ctpedia029@gmail.com</a></p>
             <p>Or connect on my social media:</p>
             <div class="sosmedS">
-   <a href="https://www.instagram.com/xy.c4">
+   <a href="https://www.instagram.com/tobangado155?igsh=MXZ5MG03MGtuNmwxMQ==">
    <img class="sosmed" src="https://img.icons8.com/?size=100&id=84884&format=png&color=FFFFFF"></a>
  <a href="https://github.com/CloneTerial"><img class="sosmed" src="https://img.icons8.com/?size=100&id=20675&format=png&color=FFFFFF"></a>
   <a href="https://x.com/Clone193?t=1G-BozMEF3xDOFQ0qvnQxg&s=08"><img src="https://img.icons8.com/?size=100&id=ud9VVQzOPag8&format=png&color=FFFFFF" class="sosmed"> </a>
@@ -228,7 +218,6 @@
     </footer>
 <!-- akhir contact-->
 
-</div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
   
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
@@ -266,100 +255,26 @@
     AOS.init();
   </script>
 <script>
-  // Menutup navbar saat klik link di dalam navbar
+  
   document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
     link.addEventListener('click', function () {
       var navbarToggler = document.querySelector('.navbar-toggler');
       var navbarCollapse = document.querySelector('.navbar-collapse');
-
-      // Cek apakah navbar dalam kondisi expanded (terbuka)
       if (navbarCollapse.classList.contains('show')) {
-        navbarToggler.click();  // Meng-trigger navbar untuk collapse (tutup)
+        navbarToggler.click(); 
       }
     });
   });
-
-  // Menutup navbar saat klik di luar navbar
   document.addEventListener('click', function (event) {
     var navbarToggler = document.querySelector('.navbar-toggler');
     var navbarCollapse = document.querySelector('.navbar-collapse');
-
-    // Cek apakah navbar dalam kondisi expanded (terbuka)
     var isNavbarOpen = navbarCollapse.classList.contains('show');
     var isClickInsideNavbar = navbarCollapse.contains(event.target) || navbarToggler.contains(event.target);
-
-    // Jika navbar terbuka dan klik di luar navbar
+    
     if (isNavbarOpen && !isClickInsideNavbar) {
-      navbarToggler.click();  // Menutup navbar
+      navbarToggler.click(); 
     }
   });
-const scrollProgress = document.getElementById('scroll-progress');
-    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const allElements = document.querySelectorAll('*');
-
-    window.addEventListener('scroll', () => {
-      const scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
-      const scrollPercentage = (scrollTop / height) * 100;
-
-      // Ubah lebar progres bar
-      scrollProgress.style.width = `${scrollPercentage}%`;
-
-      // Ubah warna berdasarkan persentase
-      if (scrollPercentage <= 33) {
-        scrollProgress.style.background = 'white';
-        document.documentElement.style.setProperty('--primary-a', 'white');
-      } else if (scrollPercentage <= 66) {
-        scrollProgress.style.background = 'blue';
-       document.documentElement.style.setProperty('--primary-a', 'blue');
-      } else {
-        scrollProgress.style.background = 'red';
-       document.documentElement.style.setProperty('--primary-a', 'red');
-      }
-    });
-     
-</script>
-<script>
-  window.scrollTo(0, 0);
-</script>
-<script>
-  // script.js
-
-function checkDevice() {
-    const popup = document.getElementById('popup');
-    const content = document.getElementById('cont');
-
-    if (window.innerWidth > 768) {
-        popup.style.display = 'block';
-        content.style.display = 'none';
-    } else {
-        popup.style.display = 'none';
-        content.style.display = 'block';
-    }
-}
-
-// Fungsi untuk menutup tab
-function closeTab() {
-    window.close(); // Mencoba menutup tab
-    alert("Browser Anda tidak mendukung fungsi 'close tab'. Silakan tutup tab ini secara manual.");
-}
-
-// Fungsi untuk membuka website di mana saja
-function openAnywhere() {
-    const popup = document.getElementById('popup');
-    const content = document.getElementById('cont');
-    popup.style.display = 'none';
-    content.style.display = 'block';
-}
-
-// Event listener untuk tombol
-document.getElementById('close-tab').addEventListener('click', closeTab);
-document.getElementById('open-anywhere').addEventListener('click', openAnywhere);
-
-// Jalankan saat halaman pertama kali dimuat
-checkDevice();
-
-// Jalankan saat ukuran layar berubah
-window.addEventListener('resize', checkDevice);
 </script>
   </body>
 </html>
