@@ -45,8 +45,17 @@
         <p>Loading...</p>
     </div>
     <!-- akhir loading -->
+    
+   <div class="popup" id="popup">
+        <div class="popup-content">
+            <p>Saat ini website di disain untuk pengguna mobile version. dimohon untuk mengubah ke mobile version</p>
+            <button id="closeBtn">Close</button>
+            <button id="openBtn">Open Anywhere</button>
+        </div>
+    </div>
+    
     <!-- navbar -->
- <nav class="navbar fixed-top navbar-dark bg-dark" data-aos="fade-down" data-aos-duration="1000">
+ <nav class="navbar fixed-top navbar-dark bg-dark" id="navs" data-aos="fade-down" data-aos-duration="1000">
   <div class="container-fluid">
     <a class="navbar-brand" style="font-family: gecko;" href="#">CloneTerial</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,18 +85,18 @@
     <!-- akhir navbar !-->
     <!-- card-home !-->
     
-    <div class="d-flex pt-5 justify-content-center" id="home">
+    <div class="d-flex pt-5 justify-content-center" id="home" >
     <div class="card cardS text-white" style="width: 18rem; margin-top: 5rem; margin-bottom: 5rem;" data-aos="zoom-in" data-aos-duration="1000">
   
       <img src="pfp.jpg" id="uu" class="card-img-center rounded-circle mx-auto mt-2" style="width: 10rem; " alt="hutao">
    
   <div class="card-body">
-    <p data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="1000"class="fs-6 text-secondary m-0 pb-0">AI ENGINEER</p>
+    <p data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="1000" class="fs-6 text-secondary m-0 pb-0">AI ENGINEER</p>
     <h1 class="fs-4 col-md-12 typewrite" style="font-family: gecko;">Andhika Yuga Pratama</h1>
-    <p data-aos="fade-right" data-aos-duration="1000" class="card-text" style="font-family: 'crimson text';">Saya seorang fullstack developer berpengalaman 5+ tahun. Menguasai frontend, backend, dan berkomitmen pada solusi perangkat lunak unggul.</p>
+    <p data-aos="fade-right" data-aos-duration="1000" class="card-text" style="font-family: 'crimson text'; font-size: 0.9rem">Saya seorang full stack developer pemula yang sedang mengembangkan kemampuan di frontend dan backend, saya berfokus pada pembuatan solusi perangkat lunak yang efektif.</p>
   </div>
   <div class="sosmedS">
-   <a href="https://www.instagram.com/tobangado155?igsh=MXZ5MG03MGtuNmwxMQ==">
+   <a href="https://www.instagram.com/xy.c4">
    <img data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="500" class="sosmed" src="https://img.icons8.com/?size=100&id=84884&format=png&color=FFFFFF"></a>
  <a href="https://github.com/CloneTerial"><img data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="700" class="sosmed" src="https://img.icons8.com/?size=100&id=20675&format=png&color=FFFFFF"></a>
   <a href="https://x.com/Clone193?t=1G-BozMEF3xDOFQ0qvnQxg&s=08"><img data-aos="zoom-in" data-aos-duration="1000" data-aos-delay="900" src="https://img.icons8.com/?size=100&id=ud9VVQzOPag8&format=png&color=FFFFFF" class="sosmed"> </a>
@@ -98,7 +107,6 @@
 </div>
 </div>
 </div>
-</div>
     <!-- akhir card-home-->
     <!-- project -->
     <div class="pt-5" id="project">
@@ -106,11 +114,11 @@
     <div style="margin-bottom: 5rem;" data-aos="zoom-in-down" class="slider row">
   <div class="slides col">
     <div class="order-first card cardm">
-  <img src="1.jpeg" class="card-img-top" alt="...">
+  <img src="Diagram-CNN.png" class="card-img-top" alt="...">
   <div class="card-body">
-    <h5 class="card-title">Card title</h5>
-    <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-    <a href="#" class="btn btn-primary">Go somewhere</a>
+    <h5 class="card-title">Image-Classification</h5>
+    <p class="card-text">Pengklasifikasian gambar menggunakan liblary Tensorflow dan model Convolutional Neural Network (CNN) dengan Python.</p>
+    <a href="https://github.com/CloneTerial/image-classification" class="btn btn-primary">take a look</a>
   </div>
 </div>
    <div class="card cardm">
@@ -199,13 +207,13 @@
 <!-- akhir about -->
 
 <!-- awal contact -->
-<footer class="mt-2">
+<footer id="contact" class="mt-2">
 <div class="footer-contact">
  <h2>Contact me</h2>
             <p><strong>Email:</strong> <a href="mailto:ctpedia029@gmail.com">ctpedia029@gmail.com</a></p>
             <p>Or connect on my social media:</p>
             <div class="sosmedS">
-   <a href="https://www.instagram.com/tobangado155?igsh=MXZ5MG03MGtuNmwxMQ==">
+   <a href="https://www.instagram.com/xy.c4">
    <img class="sosmed" src="https://img.icons8.com/?size=100&id=84884&format=png&color=FFFFFF"></a>
  <a href="https://github.com/CloneTerial"><img class="sosmed" src="https://img.icons8.com/?size=100&id=20675&format=png&color=FFFFFF"></a>
   <a href="https://x.com/Clone193?t=1G-BozMEF3xDOFQ0qvnQxg&s=08"><img src="https://img.icons8.com/?size=100&id=ud9VVQzOPag8&format=png&color=FFFFFF" class="sosmed"> </a>
@@ -216,6 +224,7 @@
 </div>
         </div>
     </footer>
+
 <!-- akhir contact-->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>

@@ -33,3 +33,19 @@ currentAudio.onended = () => {
     isPlaying = false;
     document.getElementById('uu').classList.remove('playing'); // Menghapus outline saat audio selesai
 };
+
+// Memeriksa jika layar dalam desktop mode
+if (window.innerWidth >= 1320) {
+    // Menampilkan popup saat halaman dibuka di desktop
+    document.getElementById('popup').style.display = 'flex';
+}
+
+document.getElementById('closeBtn').addEventListener('click', function() {
+    // Menutup pop-up saat tombol Close ditekan
+   window.close()
+});
+
+document.getElementById('openBtn').addEventListener('click', function() {
+    // Fungsi untuk membuka sesuatu jika Open Anywhere ditekan (misalnya redirect atau aksi lain)
+    document.getElementById('popup').style.display = 'none';
+});
