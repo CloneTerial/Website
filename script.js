@@ -40,11 +40,6 @@ if (window.innerWidth >= 768) {
     document.getElementById('popup').style.display = 'flex';
 }
 
-document.getElementById('closeBtn').addEventListener('click', function() {
-    // Menutup pop-up saat tombol Close ditekan
-   window.close()
-});
-
 document.getElementById('openBtn').addEventListener('click', function() {
     // Fungsi untuk membuka sesuatu jika Open Anywhere ditekan (misalnya redirect atau aksi lain)
     document.getElementById('popup').style.display = 'none';
