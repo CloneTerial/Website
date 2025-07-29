@@ -8,7 +8,7 @@ Ini adalah proyek **portfolio web pribadi** yang dirancang mobile-first dan mena
 - 🎧 Gambar profil bisa memutar/mem-pause audio preview saat diklik
 - 📱 Pop-up peringatan untuk pengguna desktop (optimal untuk mobile)
 - 🎞️ Slider horizontal untuk menampilkan daftar proyek
-- 🧠 Seksi skill dan teknologi yang digunakan
+- 🧠 skill dan teknologi yang digunakan
 - 📌 Smooth scroll & navbar collapse otomatis
 
 ### 🛠️ Teknologi yang Digunakan
