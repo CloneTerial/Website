@@ -1,4 +1,4 @@
-## 📱 Portfolio Web - CloneTerial
+## 📱 Portfolio Web
 
 Ini adalah proyek **portfolio web pribadi** yang dirancang mobile-first dan menampilkan informasi pengembang seperti proyek, skill, serta kontak. Dibangun menggunakan HTML, CSS, dan JavaScript vanilla, dengan dukungan Bootstrap & AOS animation.
 
@@ -24,7 +24,7 @@ Ini adalah proyek **portfolio web pribadi** yang dirancang mobile-first dan mena
 1. Clone repositori:
 
    ```bash
-   git clone https://github.com/CloneTerial/portfolio-cloneterial.git
+   git clone https://github.com/CloneTerial/Website.git
    ```
 
 2. Buka `index.html` di browser (disarankan mobile view atau mode developer).
@@ -45,4 +45,4 @@ Ini adalah proyek **portfolio web pribadi** yang dirancang mobile-first dan mena
 
 [see preview](https://cloneterial.github.io/Website/)
 
-![Preview tampilan mobile](preview.png)
+![Preview tampilan mobile](preview.jpg)
