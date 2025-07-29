@@ -45,4 +45,4 @@ Ini adalah proyek **portfolio web pribadi** yang dirancang mobile-first dan mena
 
 [see preview](https://cloneterial.github.io/Website/)
 
-<img src="preview.jpg" alt="Mobile preview" width="350">
+<img src="preview.jpg" alt="Mobile preview" width="320">
