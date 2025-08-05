@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIIP Delivery</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .section, .category-section, .menu-list {
+      display: none;
+    }
+    .active {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 15px 25px;
+      background: #25D366;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      background: #1ebe5d;
+    }
+    .menu-card {
+      background: white;
+      border-radius: 10px;
+      padding: 15px;
+      width: 250px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    .menu-card img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .menu-card h3 {
+      margin: 5px 0;
+      font-size: 1.1em;
+    }
+    .menu-card a {
+      display: inline-block;
+      margin-top: 10px;
+      background: #25D366;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📱 Layanan SIIP Delivery</h1>
+
+  <div class="section active" id="mainMenu">
+    <button class="btn" onclick="showCategories('makanan')">🍔 Makanan</button>
+    <button class="btn" onclick="showMenus('minuman')">🥤 Minuman</button>
+    <button class="btn" onclick="showMenus('ojek')">🛵 Kurir / Ojek</button>
+  </div>
+
+  <div class="category-section" id="categoryList"></div>
+  <div class="menu-list" id="menuList"></div>
+
+  <script>
+    const categories = {
+      makanan: [
+        { id: "nasigoreng", name: "🍛 Nasi Goreng" },
+        { id: "sate", name: "🍢 Sate" },
+        { id: "mieayam", name: "🍜 Mie Ayam" },
+        { id: "ayamgeprek", name: "🍗 Ayam Geprek" }
+      ]
+    };
+
+    const data = {
+      nasigoreng: [
+        {
+          name: "Nasi Goreng Barokah",
+          img: "https://via.placeholder.com/250x150.png?text=Nasi+Goreng+Barokah",
+          wa: "https://wa.me/628990216387?text=Halo+kak,+saya+mau+pesan+Nasi+Goreng+Barokah"
+        }
+      ],
+      sate: [
+        {
+          name: "Sate Ayam Pak Slamet",
+          img: "https://via.placeholder.com/250x150.png?text=Sate+Pak+Slamet",
+          wa: "https://wa.me/628990216387?text=Halo+kak,+saya+mau+pesan+Sate+Ayam"
+        }
+      ],
+      mieayam: [
+        {
+          name: "Mie Ayam Bakso",
+          img: "https://files.catbox.moe/dlz865.jpg?text=Mie+Ayam+Bakso",
+          wa: "https://wa.me/628990216387?text=Halo+kak,+saya+mau+pesan+Mie+Ayam+Bakso"
+        }
+      ],
+      ayamgeprek: [
+        {
+          name: "Ayam Geprek Bu Rani",
+          img: "https://via.placeholder.com/250x150.png?text=Ayam+Geprek+Bu+Rani",
+          wa: "https://wa.me/628990216387?text=Halo+kak,+saya+mau+pesan+Ayam+Geprek"
+        }
+      ],
+      minuman: [
+        {
+          name: "Es Teh Manis",
+          img: "https://via.placeholder.com/250x150.png?text=Es+Teh+Manis",
+          wa: "https://wa.me/628990216387?text=Halo+kak,+saya+mau+pesan+Es+Teh+Manis"
+        },
+        {
+          name: "Jus Alpukat",
+          img: "https://via.placeholder.com/250x150.png?text=Jus+Alpukat",
+          wa: "https://wa.me/628990216387?text=Halo+kak,+saya+mau+pesan+Jus+Alpukat"
+        }
+      ],
+      ojek: [
+        {
+          name: "Layanan Ojek Dalam Kota",
+          img: "https://via.placeholder.com/250x150.png?text=Ojek+Dalam+Kota",
+          wa: "https://wa.me/628990216387?text=Halo+kak,+saya+butuh+ojek+dalam+kota"
+        },
+        {
+          name: "Kurir Antar Barang",
+          img: "https://via.placeholder.com/250x150.png?text=Kurir+Barang",
+          wa: "https://wa.me/628990216387?text=Halo+kak,+saya+mau+kirim+barang+pakai+kurir"
+        }
+      ]
+    };
+
+    function showCategories(type) {
+      document.getElementById("mainMenu").classList.remove("active");
+      const categoryList = document.getElementById("categoryList");
+      categoryList.innerHTML = "";
+      categoryList.classList.add("active");
+      const catData = categories[type];
+      catData.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.textContent = cat.name;
+        btn.className = "btn";
+        btn.onclick = () => showMenus(cat.id);
+        categoryList.appendChild(btn);
+      });
+    }
+
+    function showMenus(categoryId) {
+      document.getElementById("mainMenu").classList.remove("active");
+      document.getElementById("categoryList").classList.remove("active");
+      const menuList = document.getElementById("menuList");
+      menuList.innerHTML = "";
+      menuList.classList.add("active");
+      const menus = data[categoryId] || [];
+      menus.forEach(menu => {
+        const card = document.createElement("div");
+        card.className = "menu-card";
+        card.innerHTML = `
+          <img src="${menu.img}" alt="${menu.name}">
+          <h3>${menu.name}</h3>
+          <a href="${menu.wa}" target="_blank">Pesan Sekarang</a>
+        `;
+        menuList.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>
