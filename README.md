@@ -36,8 +36,8 @@ Ini adalah proyek **portfolio web pribadi** yang dirancang mobile-first dan mena
 ├── index.html        # Halaman utama portfolio
 ├── style.css         # Custom styling
 ├── script.js         # Interaktivitas audio, popup, dan event lainnya
-├── song.MP3          # Audio preview (pastikan file ini ada)
-├── pfp.jpg           # Gambar profil bundar
+├── song.MP3          # Audio preview
+├── pfp.jpg           # Gambar profil
 ├── ...               # Gambar proyek & ikon sosial
 ```
 
