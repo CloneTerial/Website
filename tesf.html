@@ -148,12 +148,12 @@
 
     form.addEventListener('submit', e => {
         e.preventDefault();
-        statusMsg.innerText = "⏳ MENGIRIM DATA...";
+        statusMsg.innerText = "MENGIRIM DATA...";
         statusMsg.style.color = "#ccc"; 
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
             .then(response => {
-                statusMsg.innerText = "✅ DATA TERKIRIM!";
+                statusMsg.innerText = "DATA TERKIRIM!";
                 statusMsg.style.color = "#00FF00"; 
                 form.reset();
             })
