@@ -328,10 +328,187 @@ body{
     background-color: white;
     color: black;
 }
+section {
+  min-height: calc(100vh - 56px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding-top: 56px;
+  box-sizing: border-box;
+}
+
 @media screen and (max-width: 1200px) {
   .slider {
-  width: 300px;
-  text-align: center;
-   
+    width: 300px;
+    text-align: center;
+  }
+}
+@media (min-width: 1200px) {
+  .cardS {
+    display: flex;
+    flex-direction: row;
+    gap: 3rem;
+    padding: 2rem;
+    width: 70rem !important;
+    height: auto !important;
+    border-radius: 2rem !important;
+  }
+
+  .left-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 2rem;
+  }
+
+  #uu {
+    width: 20rem !important;
+    margin-bottom: 1rem;
+  }
+
+  .sosmedS {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .card-body {
+    max-width: 35rem;
+    text-align: left !important;
+    margin-top: 2rem;
+  }
+
+  #home {
+    width: 100vh;
+    margin: auto;
+  }
+
+  section {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 6rem;
+    padding-bottom: 3rem;
+  }
+
+  .home-section {
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cardS {
+    max-height: 80vh;
+  }
+
+  .bidang {
+    font-size: 1.5rem !important;
+  }
+
+  .name {
+    font-size: 2rem !important;
+  }
+
+  .sosmedS {
+    margin: 0;
+    display: block;
+  }
+
+  .sosmed {
+    width: 3rem;
+    height: 3rem;
+    margin-left: 2.5rem;
+  }
+
+  .deskripsi {
+    font-size: 2rem !important;
+    width: 40rem;
+  }
+
+  .profile-group-wrapper {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 0 5rem;
+    gap: 8rem;
+    position: relative;
+  }
+
+  #about {
+    width: 35% !important;
+    padding-top: 0 !important;
+    position: relative;
+  }
+
+  #skill {
+    width: 35% !important;
+    padding-top: 0 !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .about-me {
+    width: 100% !important;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+    background-color: #000;
+  }
+
+  .about-me::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: -8rem;
+    width: 8rem;
+    height: 2px;
+
+    background: linear-gradient(
+      to right,
+      rgba(255, 255, 255, 0.6) 0%,
+      rgba(255, 255, 255, 0) 100%
+    );
+
+    transform: translateY(-50%);
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 50%;
+  }
+
+  .about-me:hover::after {
+    background: linear-gradient(
+      to right,
+      rgba(0, 123, 255, 0.8) 0%,
+      rgba(0, 123, 255, 0) 100%
+    );
+    width: 9rem;
+    right: -9rem;
+    transition: all 0.3s ease;
+  }
+
+  .skill {
+    margin-top: 0 !important;
+  }
+
+  .col-skill {
+    align-items: flex-start !important;
+
+    justify-content: center;
+  }
+
+  .section-title {
+    text-align: left !important;
+    margin-bottom: 1.5rem;
+    padding-left: 10px;
+    border-left: 5px solid #fff;
+    line-height: 1;
+  }
+
+  .skill-card {
+    width: 100% !important;
   }
 }
