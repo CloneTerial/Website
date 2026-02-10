@@ -309,6 +309,7 @@ body{
     border: 1px solid white;
     border-radius: 4px;
     font-family: 'Segoe UI', Arial, sans-serif !important; 
+    box-sizing: border-box;
 }
 
 .about-me button {
