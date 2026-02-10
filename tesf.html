@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survei Digital</title>
     <link rel="stylesheet" href="style.css"> 
-
+    
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,8 +18,9 @@
 </head>
 <body>
 
-<div class="form-card">
-    <h2>Data Konsumen</h2>
+<div class="about-me" style="width: 100%; max-width: 400px;">
+    
+    <h2 style="text-align: center;">DATA KONSUMEN</h2>
     
     <form name="submit-to-google-sheet">
         
@@ -53,14 +53,13 @@
             <option value="Siang (11:00 - 15:00)">Siang (11:00 - 15:00)</option>
             <option value="Sore (15:00 - 18:00)">Sore (15:00 - 18:00)</option>
             <option value="Malam (18:00 - 24:00)">Malam (18:00 - 24:00)</option>
-            <option value="Dini Hari">Dini Hari (Begadang)</option>
+            <option value="Dini Hari">Dini Hari</option>
         </select>
 
         <button type="submit">KIRIM DATA</button>
     </form>
-    <p id="status"></p>
+    <p id="status" style="text-align: center; margin-top: 10px;"></p>
 </div>
-
 <script>
     const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W1NEt7Gg_QpMXFuXUu13Ht0t626Fe5Mf8wocTihE0m3Ssg_--0-ASB--Fs-kNWmkdw/exec';
     
