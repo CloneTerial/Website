@@ -3,60 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survei Perilaku Konsumen Digital</title>
+    <title>Survei Digital | Tugas TKJ</title>
     <style>
-        body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 20px; }
-        input, select, button { width: 100%; margin: 10px 0; padding: 10px; }
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; }
+        input, select, button { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        button:hover { background: #0056b3; }
+        #loading { display: none; text-align: center; margin-top: 10px; color: #666; }
     </style>
 </head>
 <body>
 
-    <h2>Survei Konsumen Digital</h2>
+<div class="card">
+    <h2 style="text-align: center;">Data Konsumen Digital</h2>
+    
     <form name="submit-to-google-sheet">
-        <label>Usia Anda</label>
-        <input name="Usia" type="number" required placeholder="Contoh: 17">
+        
+        <label>Usia</label>
+        <input type="number" name="Usia" placeholder="Contoh: 17" required>
 
         <label>Media Digital Favorit</label>
-        <select name="Media Favorit">
+        <select name="Media Digital Favorit" required>
+            <option value="" disabled selected>Pilih Media...</option>
             <option value="Instagram">Instagram</option>
             <option value="TikTok">TikTok</option>
             <option value="YouTube">YouTube</option>
+            <option value="Facebook">Facebook</option>
             <option value="Website/Blog">Website/Blog</option>
         </select>
 
-        <input name="Perangkat" type="hidden" id="deviceInput">
+        <label>Waktu Paling Sering Akses Sosmed?</label>
+        <select name="Waktu Akses Sosmed" required>
+            <option value="" disabled selected>Pilih Waktu...</option>
+            <option value="Pagi (06:00 - 11:00)">Pagi (06:00 - 11:00)</option>
+            <option value="Siang (11:00 - 15:00)">Siang (11:00 - 15:00)</option>
+            <option value="Sore (15:00 - 18:00)">Sore (15:00 - 18:00)</option>
+            <option value="Malam (18:00 - 00:00)">Malam (18:00 - 00:00)</option>
+            <option value="Dini Hari (Begadang)">Dini Hari (Begadang)</option>
+        </select>
+
+        <input type="hidden" name="Perangkat Yang Digunakan" id="deviceInput">
 
         <button type="submit">Kirim Data</button>
     </form>
+    
+    <p id="loading">Sedang mengirim data...</p>
+</div>
 
-    <p id="msg"></p>
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W1NEt7Gg_QpMXFuXUu13Ht0t626Fe5Mf8wocTihE0m3Ssg_--0-ASB--Fs-kNWmkdw/exec'; 
+    
+    const form = document.forms['submit-to-google-sheet'];
+    const loadingText = document.getElementById('loading');
 
-    <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbza78yiELDxNIgAFsinbTOV9xq3aG4-o0r2FZDYG3KTFEfNVbZhY_u23tRYvSedwFhp/exec';
-        const form = document.forms['submit-to-google-sheet'];
-        const msg = document.getElementById("msg");
+    function detectDevice() {
+        const ua = navigator.userAgent;
+        if (/Android/i.test(ua)) return "HP Android";
+        if (/iPhone|iPad/i.test(ua)) return "iPhone/iPad";
+        if (/Windows/i.test(ua)) return "Laptop/PC Windows";
+        if (/Mac/i.test(ua)) return "Macbook";
+        return "Perangkat Lain";
+    }
+    
+    document.getElementById('deviceInput').value = detectDevice();
 
-        const userAgent = navigator.userAgent;
-        let deviceType = "Desktop";
-        if (/Android|webOS|iPhone|iPad|iPod/i.test(userAgent)) {
-            deviceType = "Mobile/Tablet";
-        }
-        document.getElementById('deviceInput').value = deviceType + " (" + navigator.platform + ")";
-
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            msg.innerHTML = "Sedang mengirim...";
-            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
-                .then(response => {
-                    msg.innerHTML = "Data berhasil disimpan!";
-                    form.reset();
-                })
-                .catch(error => {
-                    msg.innerHTML = "Error!";
-                    console.error('Error!', error.message);
-                });
-        });
-    </script>
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        loadingText.style.display = "block";
+        
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+            .then(response => {
+                alert("Data Berhasil Disimpan! Terima kasih.");
+                loadingText.style.display = "none";
+                form.reset();
+                document.getElementById('deviceInput').value = detectDevice();
+            })
+            .catch(error => {
+                alert("Gagal mengirim data! Cek koneksi.");
+                loadingText.style.display = "none";
+                console.error('Error!', error.message);
+            });
+    });
+</script>
 
 </body>
 </html>
