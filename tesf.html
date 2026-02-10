@@ -9,92 +9,90 @@
 
     <style>
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
         }
 
         .form-card {
             background-color: black;
-            border: 1px solid #333;
-            border-radius: 12px; 
-            padding: 40px;
+            outline: 2px solid white;
+            border-radius: 8px;
+            padding: 30px;
             width: 100%;
-            max-width: 420px;
+            max-width: 400px;
             color: white;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
             margin: 20px;
         }
 
         .form-card h2 {
             text-align: center;
-            margin-bottom: 30px;
-            font-weight: 700;
-            font-size: 1.5rem;
-            letter-spacing: 1px;
+            margin-bottom: 20px;
+            font-family: 'altone', sans-serif;
             text-transform: uppercase;
-            color: #fff;
+            letter-spacing: 1px;
         }
 
         label {
-            font-weight: 600;
+            font-weight: bold;
             display: block;
-            margin-top: 20px;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: #a0a0a0;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #ccc;
         }
+
         input, select {
             width: 100%;
-            padding: 14px;
-            background-color: #1a1a1a;
-            color: #fff;
-            border: 1px solid #333;
-            border-radius: 6px;
+            padding: 12px;
+            background-color: #222;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Arial, sans-serif !important; 
-            font-size: 1rem;
+            font-family: 'altone', sans-serif;
             outline: none;
-            transition: all 0.3s ease;
+            transition: 0.3s;
+            font-family: 'Segoe UI', Arial, sans-serif !important;
         }
 
         input:focus, select:focus {
             background-color: #000;
             border-color: #007BFF;
-            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+            box-shadow: 0 0 5px #007BFF;
         }
 
         button {
             width: 100%;
-            padding: 16px;
-            margin-top: 30px;
-            background-color: transparent;
+            padding: 15px;
+            margin-top: 25px;
+            background-color: black;
             color: white;
-            border: 1px solid white;
-            border-radius: 6px;
-            font-family: 'Segoe UI', sans-serif !important;
+            border: 2px solid white;
+            border-radius: 5px;
+            font-family: 'altone', sans-serif;
             font-weight: bold;
-            font-size: 0.9rem;
+            font-size: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
-            letter-spacing: 1px;
+            text-transform: uppercase;
         }
 
         button:hover {
             background-color: white;
             color: black;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 10px white; 
         }
 
         #status {
             text-align: center;
-            margin-top: 20px;
-            font-size: 0.85em;
-            color: #888;
+            margin-top: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -129,12 +127,12 @@
 
         <label>Waktu Akses Sosmed?</label>
         <select name="Waktu Akses" required>
-            <option value="" disabled selected>Pilih Waktu (Jam)...</option>
+            <option value="" disabled selected>Pilih Waktu...</option>
             <option value="Pagi (06:00 - 11:00)">Pagi (06:00 - 11:00)</option>
             <option value="Siang (11:00 - 15:00)">Siang (11:00 - 15:00)</option>
             <option value="Sore (15:00 - 18:00)">Sore (15:00 - 18:00)</option>
             <option value="Malam (18:00 - 24:00)">Malam (18:00 - 24:00)</option>
-            <option value="Dini Hari">Dini Hari</option>
+            <option value="Dini Hari">Dini Hari (Begadang)</option>
         </select>
 
         <button type="submit">KIRIM DATA</button>
@@ -150,18 +148,18 @@
 
     form.addEventListener('submit', e => {
         e.preventDefault();
-        statusMsg.innerText = "Sedang mengirim...";
-        statusMsg.style.color = "#aaa"; 
+        statusMsg.innerText = "⏳ MENGIRIM DATA...";
+        statusMsg.style.color = "#ccc"; 
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
             .then(response => {
-                statusMsg.innerText = "Berhasil disimpan!";
-                statusMsg.style.color = "#4ade80";
+                statusMsg.innerText = "✅ DATA TERKIRIM!";
+                statusMsg.style.color = "#00FF00"; 
                 form.reset();
             })
             .catch(error => {
-                statusMsg.innerText = "Gagal mengirim.";
-                statusMsg.style.color = "#ef4444";
+                statusMsg.innerText = "❌ ERROR! CEK KONEKSI.";
+                statusMsg.style.color = "red";
                 console.error('Error!', error.message);
             });
     });
