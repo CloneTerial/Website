@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survei Perilaku Konsumen Digital</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 20px; }
+        input, select, button { width: 100%; margin: 10px 0; padding: 10px; }
+    </style>
+</head>
+<body>
+
+    <h2>Survei Konsumen Digital</h2>
+    <form name="submit-to-google-sheet">
+        <label>Usia Anda</label>
+        <input name="Usia" type="number" required placeholder="Contoh: 17">
+
+        <label>Media Digital Favorit</label>
+        <select name="Media Favorit">
+            <option value="Instagram">Instagram</option>
+            <option value="TikTok">TikTok</option>
+            <option value="YouTube">YouTube</option>
+            <option value="Website/Blog">Website/Blog</option>
+        </select>
+
+        <input name="Perangkat" type="hidden" id="deviceInput">
+
+        <button type="submit">Kirim Data</button>
+    </form>
+
+    <p id="msg"></p>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbza78yiELDxNIgAFsinbTOV9xq3aG4-o0r2FZDYG3KTFEfNVbZhY_u23tRYvSedwFhp/exec';
+        const form = document.forms['submit-to-google-sheet'];
+        const msg = document.getElementById("msg");
+
+        const userAgent = navigator.userAgent;
+        let deviceType = "Desktop";
+        if (/Android|webOS|iPhone|iPad|iPod/i.test(userAgent)) {
+            deviceType = "Mobile/Tablet";
+        }
+        document.getElementById('deviceInput').value = deviceType + " (" + navigator.platform + ")";
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            msg.innerHTML = "Sedang mengirim...";
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => {
+                    msg.innerHTML = "Data berhasil disimpan!";
+                    form.reset();
+                })
+                .catch(error => {
+                    msg.innerHTML = "Error!";
+                    console.error('Error!', error.message);
+                });
+        });
+    </script>
+
+</body>
+</html>
