@@ -4,27 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Survei Digital</title>
+    
+    <link rel="stylesheet" href="style.css"> 
+
     <style>
-        body { font-family: sans-serif; background: #f4f4f9; padding: 20px; display: flex; justify-content: center; }
-        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        h2 { text-align: center; color: #333; margin-bottom: 20px; }
-        label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px;}
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; margin-top: 25px; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
-        button:hover { background: #218838; }
-        #status { text-align: center; margin-top: 15px; font-size: 0.9em; }
+        body {
+            font-family: 'altone', sans-serif; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .form-card {
+            background-color: black;
+            outline: 2px solid white;
+            border-radius: 8px;
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+            color: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            margin: 20px;
+        }
+
+        .form-card h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'altone', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            color: #ccc;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background-color: #222;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-family: 'altone', sans-serif;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus, select:focus {
+            background-color: #000;
+            border-color: #007BFF;
+            box-shadow: 0 0 5px #007BFF;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            margin-top: 25px;
+            background-color: black;
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            font-family: 'altone', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background-color: white;
+            color: black;
+            box-shadow: 0 0 10px white; 
+        }
+
+        #status {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Form Perilaku Konsumen</h2>
+<div class="form-card">
+    <h2>Data Konsumen</h2>
+    
     <form name="submit-to-google-sheet">
         
         <label>Usia</label>
         <input type="number" name="Usia" placeholder="Contoh: 17" required>
 
-        <label>Perangkat Yang Digunakan</label>
+        <label>Perangkat Digunakan</label>
         <select name="Perangkat Yang Digunakan" required>
             <option value="" disabled selected>Pilih Perangkat...</option>
             <option value="HP Android">HP Android</option>
@@ -34,7 +115,7 @@
         </select>
 
         <label>Media Digital Favorit</label>
-        <select name="Media Digital Favorit" required>
+        <select name="Media Digital favorit" required>
             <option value="" disabled selected>Pilih Media...</option>
             <option value="Instagram">Instagram</option>
             <option value="TikTok">TikTok</option>
@@ -43,17 +124,17 @@
             <option value="Website">Website/Blog</option>
         </select>
 
-        <label>Waktu Paling Sering Akses?</label>
+        <label>Waktu Akses Sosmed?</label>
         <select name="Waktu Akses" required>
             <option value="" disabled selected>Pilih Waktu...</option>
             <option value="Pagi (06:00 - 11:00)">Pagi (06:00 - 11:00)</option>
             <option value="Siang (11:00 - 15:00)">Siang (11:00 - 15:00)</option>
             <option value="Sore (15:00 - 18:00)">Sore (15:00 - 18:00)</option>
             <option value="Malam (18:00 - 24:00)">Malam (18:00 - 24:00)</option>
-            <option value="Dini Hari">Dini Hari</option>
+            <option value="Dini Hari">Dini Hari (Begadang)</option>
         </select>
 
-        <button type="submit">Kirim Data</button>
+        <button type="submit">KIRIM DATA</button>
     </form>
     <p id="status"></p>
 </div>
@@ -66,16 +147,17 @@
 
     form.addEventListener('submit', e => {
         e.preventDefault();
-        statusMsg.innerText = "Sedang mengirim...";
+        statusMsg.innerText = "⏳ MENGIRIM DATA...";
+        statusMsg.style.color = "#ccc"; 
         
         fetch(scriptURL, { method: 'POST', body: new FormData(form)})
             .then(response => {
-                statusMsg.innerText = "✅ Data Sukses Masuk!";
-                statusMsg.style.color = "green";
+                statusMsg.innerText = "✅ DATA TERKIRIM!";
+                statusMsg.style.color = "#00FF00"; 
                 form.reset();
             })
             .catch(error => {
-                statusMsg.innerText = "❌ Error! Cek koneksi.";
+                statusMsg.innerText = "❌ ERROR! CEK KONEKSI.";
                 statusMsg.style.color = "red";
                 console.error('Error!', error.message);
             });
