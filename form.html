@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survei Digital</title>
+    <link rel="stylesheet" href="style.css"> 
+    
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        label {
+        color: white; !important;
+        }
+    </style>
+</head>
+<body>
+
+<div class="about-me" style="width: 18.5rem">
+    
+    <h2 style="text-align: center;">DATA KONSUMEN</h2>
+    
+    <form name="submit-to-google-sheet">
+        
+        <label>Usia</label>
+        <input type="number" name="Usia" placeholder="Contoh: 17" required>
+
+        <label>Perangkat Digunakan</label>
+        <select name="Perangkat Yang Digunakan" required>
+            <option value="" disabled selected>Pilih Perangkat...</option>
+            <option value="HP Android">HP Android</option>
+            <option value="iPhone (iOS)">iPhone (iOS)</option>
+            <option value="Laptop/PC">Laptop/PC</option>
+            <option value="Tablet">Tablet</option>
+        </select>
+
+        <label>Media Digital Favorit</label>
+        <select name="Media Digital Favorit" required>
+            <option value="" disabled selected>Pilih Media...</option>
+            <option value="Instagram">Instagram</option>
+            <option value="TikTok">TikTok</option>
+            <option value="YouTube">YouTube</option>
+            <option value="Facebook">Facebook</option>
+            <option value="Website">Website/Blog</option>
+        </select>
+
+        <label>Waktu Akses Sosmed?</label>
+        <select name="Waktu Akses" required>
+            <option value="" disabled selected>Pilih Waktu...</option>
+            <option value="Pagi (06:00 - 11:00)">Pagi (06:00 - 11:00)</option>
+            <option value="Siang (11:00 - 15:00)">Siang (11:00 - 15:00)</option>
+            <option value="Sore (15:00 - 18:00)">Sore (15:00 - 18:00)</option>
+            <option value="Malam (18:00 - 24:00)">Malam (18:00 - 24:00)</option>
+            <option value="Dini Hari">Dini Hari</option>
+        </select>
+
+        <button type="submit">KIRIM DATA</button>
+    </form>
+    <p id="status" style="text-align: center; margin-top: 10px;"></p>
+</div>
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbw6W1NEt7Gg_QpMXFuXUu13Ht0t626Fe5Mf8wocTihE0m3Ssg_--0-ASB--Fs-kNWmkdw/exec';
+    
+    const form = document.forms['submit-to-google-sheet'];
+    const statusMsg = document.getElementById('status');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        statusMsg.innerText = "MENGIRIM DATA...";
+        statusMsg.style.color = "#ccc"; 
+        
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+            .then(response => {
+                statusMsg.innerText = "DATA TERKIRIM!";
+                statusMsg.style.color = "#00FF00"; 
+                form.reset();
+            })
+            .catch(error => {
+                statusMsg.innerText = "❌ ERROR! CEK KONEKSI.";
+                statusMsg.style.color = "red";
+                console.error('Error!', error.message);
+            });
+    });
+</script>
+
+</body>
+</html>
