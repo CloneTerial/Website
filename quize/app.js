@@ -5,6 +5,8 @@ let appData = JSON.parse(localStorage.getItem("quizAppData")) || [];
 let currentEditSetId = null;
 let currentQuizSession = [];
 let correctCount = 0;
+// Track which cards are currently "pending check" (input disabled during wrong animation)
+const pendingCards = new Set();
 
 /* ================================================================
    PERSISTENCE
@@ -21,7 +23,7 @@ function showToast(message, type = "info", duration = 3000) {
   const icons = { success: "✓", error: "✕", info: "⚡" };
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
-  toast.innerHTML = `<span>${icons[type] || "•"}</span><span>${message}</span>`;
+  toast.innerHTML = `<span class="toast-icon">${icons[type] || "•"}</span><span>${message}</span>`;
   container.appendChild(toast);
   setTimeout(() => {
     toast.classList.add("hide");
@@ -64,6 +66,14 @@ function showModal({ icon = "", title, body, actions }) {
           resolve(a.value);
         });
     });
+
+    // Close on backdrop click
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+        resolve(actions[0].value);
+      }
+    });
   });
 }
 
@@ -86,12 +96,7 @@ async function choiceDialog(title, body) {
     body,
     actions: [
       { id: "cancel", label: "Batal", cls: "btn-ghost", value: null },
-      {
-        id: "replace",
-        label: "Timpa Data",
-        cls: "btn-red",
-        value: false,
-      },
+      { id: "replace", label: "Timpa Data", cls: "btn-red", value: false },
       { id: "merge", label: "Gabungkan", cls: "btn-green", value: true },
     ],
   });
@@ -107,14 +112,14 @@ function showView(viewName) {
     const el = document.getElementById(`view-${v}`);
     if (v === viewName) {
       el.classList.remove("hidden");
-      // retrigger animation
       el.style.animation = "none";
-      el.offsetHeight; // reflow
+      el.offsetHeight;
       el.style.animation = "";
     } else {
       el.classList.add("hidden");
     }
   });
+  window.scrollTo({ top: 0, behavior: "smooth" });
   if (viewName === "dashboard") renderDashboard();
 }
 
@@ -146,8 +151,10 @@ function renderDashboard() {
         <div class="custom-check">
           <svg width="10" height="8" fill="none" stroke="#0a0a0f" stroke-width="2.5" viewBox="0 0 12 10"><path d="M1 5l3.5 3.5L11 1"/></svg>
         </div>
-        <span class="set-name">${escHtml(set.name)}</span>
-        <span class="set-count">${set.items.length} soal</span>
+        <div class="set-label-text">
+          <span class="set-name">${escHtml(set.name)}</span>
+          <span class="set-count">${set.items.length} soal</span>
+        </div>
       </label>
       <div class="set-actions">
         <button class="btn btn-sm" onclick="openEditor('${set.id}')">Edit</button>
@@ -271,6 +278,7 @@ function startQuiz() {
 
   currentQuizSession = [];
   correctCount = 0;
+  pendingCards.clear();
 
   checkboxes.forEach((cb) => {
     const set = appData.find((s) => s.id === cb.value);
@@ -306,13 +314,14 @@ function startQuiz() {
 
   renderQuizTrack();
   showView("quiz");
+
   setTimeout(() => {
     const first = document.getElementById("input-0");
     if (first) {
       first.focus();
-      first.scrollIntoView({ inline: "center", behavior: "smooth" });
+      first.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
-  }, 100);
+  }, 120);
 }
 
 function renderQuizTrack() {
@@ -326,64 +335,160 @@ function renderQuizTrack() {
 
     const mediaHtml =
       item.type === "image"
-        ? `<img src="${escHtml(item.content)}" alt="Soal">`
+        ? `<img src="${escHtml(item.content)}" alt="Soal gambar ${index + 1}">`
         : `<div class="content-text">${escHtml(item.content)}</div>`;
 
     card.innerHTML = `
-      <span class="card-index">${index + 1}</span>
-      ${mediaHtml}
-      <input type="text" id="input-${index}" placeholder="Jawaban…" autocomplete="off" spellcheck="false">`;
+      <span class="card-index">${index + 1} / ${currentQuizSession.length}</span>
+      <div class="quiz-card-body">
+        ${mediaHtml}
+      </div>
+      <div class="quiz-input-row">
+        <input
+          type="text"
+          id="input-${index}"
+          placeholder="Ketik jawaban…"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          inputmode="text"
+          enterkeyhint="done"
+        >
+        <button class="btn-submit-answer" id="btn-submit-${index}" aria-label="Cek jawaban" onclick="submitAnswer(${index})">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>`;
     track.appendChild(card);
 
-    document
-      .getElementById(`input-${index}`)
-      .addEventListener("keydown", function (e) {
-        if (e.key === "Enter") checkAnswer(index, this.value.trim());
-      });
+    const inputEl = document.getElementById(`input-${index}`);
+
+    // FIX: Use both keydown AND keyup for maximum mobile compatibility
+    // Some Android/iOS keyboards don't fire keydown reliably
+    let lastKeyWasEnter = false;
+
+    inputEl.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.keyCode === 13) {
+        lastKeyWasEnter = true;
+        e.preventDefault();
+        submitAnswer(index);
+      }
+    });
+
+    inputEl.addEventListener("keyup", function (e) {
+      if ((e.key === "Enter" || e.keyCode === 13) && !lastKeyWasEnter) {
+        e.preventDefault();
+        submitAnswer(index);
+      }
+      lastKeyWasEnter = false;
+    });
+
+    // Fallback: "Go"/"Search"/"Done" on mobile may fire "input" with newline
+    inputEl.addEventListener("input", function () {
+      if (this.value.endsWith("\n") || this.value.endsWith("\r")) {
+        this.value = this.value.replace(/[\r\n]/g, "");
+        submitAnswer(index);
+      }
+    });
+
+    // Auto-trigger on blur (leaving the input box)
+    // Works perfectly on mobile (tap next box) and desktop (click elsewhere)
+    inputEl.addEventListener("blur", function () {
+      // Skip if: empty, already pending wrong animation, or already correct
+      if (!this.value.trim()) return;
+      if (pendingCards.has(index)) return;
+      const card = document.getElementById(`card-${index}`);
+      if (card.classList.contains("state-correct")) return;
+      submitAnswer(index);
+    });
   });
 }
 
-function checkAnswer(index, userAnswer) {
-  if (!userAnswer) return;
-  const item = currentQuizSession[index];
-  const card = document.getElementById(`card-${index}`);
+function submitAnswer(index) {
+  // Prevent double submission while card is in pending/animating state
+  if (pendingCards.has(index)) return;
+
   const inputEl = document.getElementById(`input-${index}`);
+  const userAnswer = inputEl.value.trim();
+  checkAnswer(index, userAnswer);
+}
+
+function checkAnswer(index, userAnswer) {
+  if (!userAnswer) {
+    // Shake the input to indicate empty
+    const inputEl = document.getElementById(`input-${index}`);
+    inputEl.classList.add("shake-input");
+    setTimeout(() => inputEl.classList.remove("shake-input"), 400);
+    return;
+  }
+
+  // Guard: already answered correctly
+  const card = document.getElementById(`card-${index}`);
+  if (card.classList.contains("state-correct")) return;
+
+  const item = currentQuizSession[index];
+  const inputEl = document.getElementById(`input-${index}`);
+  const submitBtn = document.getElementById(`btn-submit-${index}`);
 
   if (userAnswer.toLowerCase() === item.answer.toLowerCase()) {
+    // ✅ Correct
     card.classList.remove("state-wrong");
     card.classList.add("state-correct");
     inputEl.disabled = true;
+    if (submitBtn) submitBtn.disabled = true;
     correctCount++;
 
     document.getElementById("quiz-correct-count").textContent = correctCount;
     document.getElementById("quiz-progress-bar").style.width =
       `${(correctCount / currentQuizSession.length) * 100}%`;
 
-    // Focus next
-    const nextInput = document.getElementById(`input-${index + 1}`);
-    if (nextInput) {
-      nextInput.focus();
-      nextInput.scrollIntoView({
-        behavior: "smooth",
-        block: "nearest",
-        inline: "center",
-      });
-    }
+    // Focus next unanswered
+    focusNextInput(index);
 
     if (correctCount === currentQuizSession.length) {
       document.getElementById("btn-finish-quiz").classList.remove("hidden");
+      document
+        .getElementById("btn-finish-quiz")
+        .scrollIntoView({ behavior: "smooth", block: "nearest" });
       showToast("🎉 Semua soal berhasil dijawab!", "success", 4000);
     }
   } else {
+    // ❌ Wrong
     item.wrongCount++;
     card.classList.add("state-wrong");
+    pendingCards.add(index);
     inputEl.disabled = true;
+    if (submitBtn) submitBtn.disabled = true;
+
     setTimeout(() => {
       card.classList.remove("state-wrong");
       inputEl.disabled = false;
+      if (submitBtn) submitBtn.disabled = false;
       inputEl.value = "";
       inputEl.focus();
+      pendingCards.delete(index);
     }, 900);
+  }
+}
+
+function focusNextInput(currentIndex) {
+  // Find next input that isn't disabled (not yet answered correctly)
+  for (let i = currentIndex + 1; i < currentQuizSession.length; i++) {
+    const nextInput = document.getElementById(`input-${i}`);
+    if (nextInput && !nextInput.disabled) {
+      nextInput.focus();
+      nextInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+  }
+  // Wrap around to first unanswered
+  for (let i = 0; i < currentIndex; i++) {
+    const prevInput = document.getElementById(`input-${i}`);
+    if (prevInput && !prevInput.disabled) {
+      prevInput.focus();
+      prevInput.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
   }
 }
 
@@ -404,22 +509,29 @@ function showStats() {
     totalWrong += item.wrongCount;
   });
 
-  // Summary boxes
+  const perfectCount = currentQuizSession.filter(
+    (i) => i.wrongCount === 0,
+  ).length;
+  const score = Math.round((perfectCount / currentQuizSession.length) * 100);
+
   document.getElementById("stats-summary").innerHTML = `
     <div class="stat-box">
       <div class="stat-val">${currentQuizSession.length}</div>
       <div class="stat-lbl">Total Soal</div>
     </div>
     <div class="stat-box">
-      <div class="stat-val" style="color:var(--green);">${currentQuizSession.filter((i) => i.wrongCount === 0).length}</div>
+      <div class="stat-val" style="color:var(--green);">${perfectCount}</div>
       <div class="stat-lbl">Langsung Benar</div>
     </div>
     <div class="stat-box">
       <div class="stat-val" style="color:var(--red);">${totalWrong}</div>
       <div class="stat-lbl">Total Salah</div>
+    </div>
+    <div class="stat-box stat-box-score">
+      <div class="stat-val" style="color:var(--gold);">${score}%</div>
+      <div class="stat-lbl">Skor Akurasi</div>
     </div>`;
 
-  // Detail list
   const statsContent = document.getElementById("stats-content");
   statsContent.innerHTML = "";
   currentQuizSession.forEach((item) => {
@@ -433,7 +545,7 @@ function showStats() {
         <div class="item-row-a">Jawaban: <span>${escHtml(item.answer)}</span></div>
       </div>
       <span class="stat-badge ${item.wrongCount === 0 ? "badge-perfect" : "badge-wrong"}">
-        ${item.wrongCount === 0 ? "✓ Sempurna" : `✕ ${item.wrongCount}x salah`}
+        ${item.wrongCount === 0 ? "✓ Sempurna" : `✕ ${item.wrongCount}x`}
       </span>`;
     statsContent.appendChild(row);
   });
@@ -591,7 +703,7 @@ async function restoreFromFile(event) {
         `File berisi <strong>${importedData.length} set</strong>.<br><br>Pilih <em>Gabungkan</em> untuk menambahkan ke data yang ada, atau <em>Timpa Data</em> untuk mengganti seluruh data yang ada.`,
       );
 
-      if (choice === null) return; // batal
+      if (choice === null) return;
       appData = choice ? appData.concat(importedData) : importedData;
       saveData();
       renderDashboard();
