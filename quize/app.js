@@ -120,6 +120,9 @@ function showView(viewName) {
     }
   });
   window.scrollTo({ top: 0, behavior: "smooth" });
+  // Sticky bar only visible on dashboard
+  const bar = document.getElementById("sticky-action-bar");
+  if (bar) bar.classList.toggle("hidden-bar", viewName !== "dashboard");
   if (viewName === "dashboard") renderDashboard();
 }
 
@@ -147,7 +150,7 @@ function renderDashboard() {
     div.className = "set-item";
     div.innerHTML = `
       <label class="set-check-label" for="check-${set.id}">
-        <input type="checkbox" class="set-checkbox" id="check-${set.id}" value="${set.id}">
+        <input type="checkbox" class="set-checkbox" id="check-${set.id}" value="${set.id}" onchange="updateStickyBar()">
         <div class="custom-check">
           <svg width="10" height="8" fill="none" stroke="#0a0a0f" stroke-width="2.5" viewBox="0 0 12 10"><path d="M1 5l3.5 3.5L11 1"/></svg>
         </div>
@@ -158,12 +161,17 @@ function renderDashboard() {
       </label>
       <div class="set-actions">
         <button class="btn btn-sm" onclick="openEditor('${set.id}')">Edit</button>
+        <button class="btn btn-gold btn-sm" onclick="handleSplitSet('${set.id}')">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+          Pecah
+        </button>
         <button class="btn btn-red btn-sm btn-icon" onclick="handleDeleteSet('${set.id}')">
           <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
         </button>
       </div>`;
     listDiv.appendChild(div);
   });
+  updateStickyBar();
 }
 
 function createNewSet() {
@@ -191,6 +199,114 @@ async function handleDeleteSet(id) {
   saveData();
   renderDashboard();
   showToast("Set berhasil dihapus.", "info");
+}
+
+/* ================================================================
+   SPLIT SET (PECAH SET)
+================================================================ */
+// Modal khusus untuk input angka pemecahan set
+async function splitDialog(title, maxItems) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-overlay";
+
+    overlay.innerHTML = `
+      <div class="modal-box">
+        <div class="modal-icon">✂️</div>
+        <div class="modal-title">${title}</div>
+        <div class="modal-body">
+          <p>Set ini memiliki total <strong>${maxItems}</strong> soal.</p>
+          <div style="margin-top: 12px;" class="field">
+            <label>Jumlah soal per set baru</label>
+            <input type="number" id="split-size-input" class="input" min="1" max="${maxItems}" placeholder="Contoh: 10 atau 20">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-ghost" id="modal-btn-cancel">Batal</button>
+          <button class="btn btn-gold" id="modal-btn-ok">Pecah Set</button>
+        </div>
+      </div>`;
+
+    document.getElementById("modal-placeholder").appendChild(overlay);
+
+    const inputEl = document.getElementById("split-size-input");
+    inputEl.focus();
+
+    // Event listeners
+    document
+      .getElementById("modal-btn-cancel")
+      .addEventListener("click", () => {
+        overlay.remove();
+        resolve(null);
+      });
+
+    document.getElementById("modal-btn-ok").addEventListener("click", () => {
+      const val = parseInt(inputEl.value, 10);
+      overlay.remove();
+      resolve(val);
+    });
+
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        overlay.remove();
+        resolve(null);
+      }
+    });
+  });
+}
+
+// Logika utama memecah array dan membuat set baru
+async function handleSplitSet(id) {
+  const set = appData.find((s) => s.id === id);
+
+  if (set.items.length < 2) {
+    showToast("Set harus memiliki minimal 2 soal untuk bisa dipecah.", "error");
+    return;
+  }
+
+  const chunkSize = await splitDialog(
+    `Pecah Set "${escHtml(set.name)}"`,
+    set.items.length,
+  );
+
+  // Validasi input
+  if (!chunkSize || isNaN(chunkSize) || chunkSize <= 0) {
+    return; // Dibatalkan atau input tidak valid
+  }
+
+  if (chunkSize >= set.items.length) {
+    showToast(
+      "Jumlah per set harus lebih kecil dari total soal saat ini.",
+      "error",
+    );
+    return;
+  }
+
+  // Pecah array items menjadi beberapa chunk
+  const chunks = [];
+  for (let i = 0; i < set.items.length; i += chunkSize) {
+    chunks.push(set.items.slice(i, i + chunkSize));
+  }
+
+  // Buat set baru berdasarkan chunk
+  const newSets = chunks.map((chunk, index) => {
+    return {
+      id: Date.now().toString() + "-" + index, // Buat ID unik
+      name: `${set.name} (${index + 1})`,
+      items: chunk,
+    };
+  });
+
+  // Tambahkan set baru ke dalam database aplikasi
+  appData.push(...newSets);
+  saveData();
+  renderDashboard();
+
+  showToast(
+    `Berhasil memecah menjadi ${chunks.length} set baru!`,
+    "success",
+    4000,
+  );
 }
 
 /* ================================================================
@@ -267,8 +383,11 @@ function deleteItem(index) {
 }
 
 /* ================================================================
-   QUIZ
+   QUIZ — SINGLE CARD FOCUS MODE
 ================================================================ */
+let quizCurrentIdx = 0;
+let quizSwipeLocked = false; // prevents rapid swipe double-fire
+
 function startQuiz() {
   const checkboxes = document.querySelectorAll(".set-checkbox:checked");
   if (checkboxes.length === 0) {
@@ -278,6 +397,7 @@ function startQuiz() {
 
   currentQuizSession = [];
   correctCount = 0;
+  quizCurrentIdx = 0;
   pendingCards.clear();
 
   checkboxes.forEach((cb) => {
@@ -286,8 +406,9 @@ function startQuiz() {
       currentQuizSession.push({
         ...item,
         wrongCount: 0,
+        answered: false,
         sourceSet: set.name,
-      }),
+      })
     );
   });
 
@@ -299,203 +420,284 @@ function startQuiz() {
   if (document.getElementById("check-shuffle").checked) {
     for (let i = currentQuizSession.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [currentQuizSession[i], currentQuizSession[j]] = [
-        currentQuizSession[j],
-        currentQuizSession[i],
-      ];
+      [currentQuizSession[i], currentQuizSession[j]] = [currentQuizSession[j], currentQuizSession[i]];
     }
   }
 
-  document.getElementById("btn-finish-quiz").classList.add("hidden");
-  document.getElementById("quiz-total-count").textContent =
-    currentQuizSession.length;
+  document.getElementById("quiz-total-count").textContent = currentQuizSession.length;
   document.getElementById("quiz-correct-count").textContent = 0;
   document.getElementById("quiz-progress-bar").style.width = "0%";
+  document.getElementById("quiz-finish-area").style.display = "none";
 
-  renderQuizTrack();
+  setupQuizSwipe();
+  setupQuizKeyboard();
+
   showView("quiz");
+  goToCard(0, false);
 
+  // Focus input after animation
   setTimeout(() => {
-    const first = document.getElementById("input-0");
-    if (first) {
-      first.focus();
-      first.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    document.getElementById("quiz-main-input")?.focus();
+  }, 320);
+}
+
+/* Navigate to a specific card index */
+function goToCard(idx, animate = true) {
+  if (idx < 0 || idx >= currentQuizSession.length) return;
+
+  const prev = quizCurrentIdx;
+  quizCurrentIdx = idx;
+  const item = currentQuizSession[idx];
+
+  const card    = document.getElementById("quiz-active-card");
+  const display = document.getElementById("quiz-card-display");
+  const input   = document.getElementById("quiz-main-input");
+  const submit  = document.getElementById("btn-submit-main");
+
+  // --- Card slide animation ---
+  if (animate && card) {
+    const dir = idx > prev ? 1 : -1;
+    card.style.transition = "none";
+    card.style.transform  = `translateX(${dir * 55}px)`;
+    card.style.opacity    = "0";
+    card.offsetHeight; // reflow
+    card.style.transition = "transform 0.28s cubic-bezier(0.22,1,0.36,1), opacity 0.25s ease";
+    card.style.transform  = "translateX(0)";
+    card.style.opacity    = "1";
+  }
+
+  // --- Render question content ---
+  if (display) {
+    display.innerHTML = item.type === "image"
+      ? `<img src="${escHtml(item.content)}" alt="Soal gambar">`
+      : `<div class="quiz-question-text">${escHtml(item.content)}</div>`;
+  }
+
+  // --- Input + card state ---
+  if (card)  card.classList.remove("state-correct", "state-wrong");
+  if (input && submit) {
+    if (item.answered) {
+      input.value   = item.answer;
+      input.disabled = true;
+      submit.disabled = true;
+      input.classList.add("state-correct-input");
+      card?.classList.add("state-correct");
+    } else if (pendingCards.has(idx)) {
+      input.disabled  = true;
+      submit.disabled = true;
+      card?.classList.add("state-wrong");
+    } else {
+      input.value   = "";
+      input.disabled  = false;
+      submit.disabled = false;
+      input.classList.remove("state-correct-input");
+      // Only auto-focus on desktop (mobile keyboard opens on demand)
+      if (window.innerWidth > 640) input.focus();
     }
-  }, 120);
+  }
+
+  // --- Update counter + dots + arrows ---
+  document.getElementById("quiz-card-counter").textContent = `${idx + 1}/${currentQuizSession.length}`;
+  updateQuizDots();
+  updateQuizArrows();
+
+  // Subtle haptic
+  if (animate && navigator.vibrate) navigator.vibrate(8);
 }
 
-function renderQuizTrack() {
-  const track = document.getElementById("quiz-track");
-  track.innerHTML = "";
+/* Quick helpers */
+function quizNextCard() {
+  if (quizCurrentIdx < currentQuizSession.length - 1) goToCard(quizCurrentIdx + 1);
+}
 
-  currentQuizSession.forEach((item, index) => {
-    const card = document.createElement("div");
-    card.className = "quiz-card";
-    card.id = `card-${index}`;
+function quizPrevCard() {
+  if (quizCurrentIdx > 0) goToCard(quizCurrentIdx - 1);
+}
 
-    const mediaHtml =
-      item.type === "image"
-        ? `<img src="${escHtml(item.content)}" alt="Soal gambar ${index + 1}">`
-        : `<div class="content-text">${escHtml(item.content)}</div>`;
+function updateQuizArrows() {
+  const prev = document.getElementById("btn-quiz-prev");
+  const next = document.getElementById("btn-quiz-next");
+  if (prev) prev.style.opacity = quizCurrentIdx === 0 ? "0.25" : "1";
+  if (next) next.style.opacity = quizCurrentIdx === currentQuizSession.length - 1 ? "0.25" : "1";
+}
 
-    card.innerHTML = `
-      <span class="card-index">${index + 1} / ${currentQuizSession.length}</span>
-      <div class="quiz-card-body">
-        ${mediaHtml}
-      </div>
-      <div class="quiz-input-row">
-        <input
-          type="text"
-          id="input-${index}"
-          placeholder="Ketik jawaban…"
-          autocomplete="off"
-          autocorrect="off"
-          autocapitalize="off"
-          spellcheck="false"
-          inputmode="text"
-          enterkeyhint="done"
-        >
-        <button class="btn-submit-answer" id="btn-submit-${index}" aria-label="Cek jawaban" onclick="submitAnswer(${index})">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
+function updateQuizDots() {
+  const bar   = document.getElementById("quiz-dots-bar");
+  const total = currentQuizSession.length;
+  if (!bar) return;
+
+  // Too many? Show text summary instead of dots
+  if (total > 20) {
+    const done = currentQuizSession.filter(i => i.answered).length;
+    bar.innerHTML = `
+      <div class="quiz-dots-text">
+        <span class="dot-answered">✓ ${done} selesai</span>
+        <span class="dot-sep">·</span>
+        <span class="dot-remaining">${total - done} tersisa</span>
+        <span class="dot-sep">·</span>
+        <span style="color:var(--text3)">${quizCurrentIdx + 1}/${total}</span>
       </div>`;
-    track.appendChild(card);
-
-    const inputEl = document.getElementById(`input-${index}`);
-
-    // FIX: Use both keydown AND keyup for maximum mobile compatibility
-    // Some Android/iOS keyboards don't fire keydown reliably
-    let lastKeyWasEnter = false;
-
-    inputEl.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" || e.keyCode === 13) {
-        lastKeyWasEnter = true;
-        e.preventDefault();
-        submitAnswer(index);
-      }
-    });
-
-    inputEl.addEventListener("keyup", function (e) {
-      if ((e.key === "Enter" || e.keyCode === 13) && !lastKeyWasEnter) {
-        e.preventDefault();
-        submitAnswer(index);
-      }
-      lastKeyWasEnter = false;
-    });
-
-    // Fallback: "Go"/"Search"/"Done" on mobile may fire "input" with newline
-    inputEl.addEventListener("input", function () {
-      if (this.value.endsWith("\n") || this.value.endsWith("\r")) {
-        this.value = this.value.replace(/[\r\n]/g, "");
-        submitAnswer(index);
-      }
-    });
-
-    // Auto-trigger on blur (leaving the input box)
-    // Works perfectly on mobile (tap next box) and desktop (click elsewhere)
-    inputEl.addEventListener("blur", function () {
-      // Skip if: empty, already pending wrong animation, or already correct
-      if (!this.value.trim()) return;
-      if (pendingCards.has(index)) return;
-      const card = document.getElementById(`card-${index}`);
-      if (card.classList.contains("state-correct")) return;
-      submitAnswer(index);
-    });
-  });
-}
-
-function submitAnswer(index) {
-  // Prevent double submission while card is in pending/animating state
-  if (pendingCards.has(index)) return;
-
-  const inputEl = document.getElementById(`input-${index}`);
-  const userAnswer = inputEl.value.trim();
-  checkAnswer(index, userAnswer);
-}
-
-function checkAnswer(index, userAnswer) {
-  if (!userAnswer) {
-    // Shake the input to indicate empty
-    const inputEl = document.getElementById(`input-${index}`);
-    inputEl.classList.add("shake-input");
-    setTimeout(() => inputEl.classList.remove("shake-input"), 400);
     return;
   }
 
-  // Guard: already answered correctly
-  const card = document.getElementById(`card-${index}`);
-  if (card.classList.contains("state-correct")) return;
+  bar.innerHTML = "";
+  currentQuizSession.forEach((item, i) => {
+    const dot = document.createElement("div");
+    dot.className = "quiz-dot";
+    if (i === quizCurrentIdx)           dot.classList.add("quiz-dot-current");
+    else if (item.answered && item.wrongCount === 0) dot.classList.add("quiz-dot-perfect");
+    else if (item.answered)              dot.classList.add("quiz-dot-done");
+    else if (pendingCards.has(i))        dot.classList.add("quiz-dot-wrong");
+    dot.onclick = () => goToCard(i);
+    bar.appendChild(dot);
+  });
+}
 
-  const item = currentQuizSession[index];
-  const inputEl = document.getElementById(`input-${index}`);
-  const submitBtn = document.getElementById(`btn-submit-${index}`);
+/* Submit answer for current card */
+function submitCurrentCard() {
+  const idx    = quizCurrentIdx;
+  const item   = currentQuizSession[idx];
+  const input  = document.getElementById("quiz-main-input");
+  const submit = document.getElementById("btn-submit-main");
+  const card   = document.getElementById("quiz-active-card");
+
+  if (!input || item.answered || pendingCards.has(idx)) return;
+
+  const userAnswer = input.value.trim();
+
+  if (!userAnswer) {
+    input.classList.add("shake-input");
+    setTimeout(() => input.classList.remove("shake-input"), 400);
+    if (navigator.vibrate) navigator.vibrate([30, 30, 30]);
+    return;
+  }
 
   if (userAnswer.toLowerCase() === item.answer.toLowerCase()) {
     // ✅ Correct
-    card.classList.remove("state-wrong");
-    card.classList.add("state-correct");
-    inputEl.disabled = true;
-    if (submitBtn) submitBtn.disabled = true;
+    item.answered = true;
     correctCount++;
+
+    card?.classList.add("state-correct");
+    input.classList.add("state-correct-input");
+    input.disabled  = true;
+    submit.disabled = true;
 
     document.getElementById("quiz-correct-count").textContent = correctCount;
     document.getElementById("quiz-progress-bar").style.width =
       `${(correctCount / currentQuizSession.length) * 100}%`;
 
-    // Focus next unanswered
-    focusNextInput(index);
+    updateQuizDots();
+    if (navigator.vibrate) navigator.vibrate(60);
 
     if (correctCount === currentQuizSession.length) {
-      document.getElementById("btn-finish-quiz").classList.remove("hidden");
-      document
-        .getElementById("btn-finish-quiz")
-        .scrollIntoView({ behavior: "smooth", block: "nearest" });
-      showToast("🎉 Semua soal berhasil dijawab!", "success", 4000);
+      // 🎉 All done
+      setTimeout(() => {
+        const finishArea = document.getElementById("quiz-finish-area");
+        if (finishArea) finishArea.style.display = "flex";
+        showToast("🎉 Semua soal berhasil dijawab!", "success", 4000);
+      }, 600);
+    } else {
+      // Auto-advance to next unanswered after brief green flash
+      setTimeout(() => {
+        let next = -1;
+        for (let i = idx + 1; i < currentQuizSession.length; i++) {
+          if (!currentQuizSession[i].answered) { next = i; break; }
+        }
+        if (next === -1) {
+          for (let i = 0; i < idx; i++) {
+            if (!currentQuizSession[i].answered) { next = i; break; }
+          }
+        }
+        if (next !== -1) goToCard(next);
+      }, 450);
     }
   } else {
     // ❌ Wrong
     item.wrongCount++;
-    card.classList.add("state-wrong");
-    pendingCards.add(index);
-    inputEl.disabled = true;
-    if (submitBtn) submitBtn.disabled = true;
+    card?.classList.add("state-wrong");
+    pendingCards.add(idx);
+    input.disabled  = true;
+    submit.disabled = true;
+
+    if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+    updateQuizDots();
 
     setTimeout(() => {
-      card.classList.remove("state-wrong");
-      inputEl.disabled = false;
-      if (submitBtn) submitBtn.disabled = false;
-      inputEl.value = "";
-      inputEl.focus();
-      pendingCards.delete(index);
+      card?.classList.remove("state-wrong");
+      input.disabled  = false;
+      submit.disabled = false;
+      input.value     = "";
+      input.classList.remove("state-correct-input");
+      input.focus();
+      pendingCards.delete(idx);
+      updateQuizDots();
     }, 900);
   }
 }
 
-function focusNextInput(currentIndex) {
-  // Find next input that isn't disabled (not yet answered correctly)
-  for (let i = currentIndex + 1; i < currentQuizSession.length; i++) {
-    const nextInput = document.getElementById(`input-${i}`);
-    if (nextInput && !nextInput.disabled) {
-      nextInput.focus();
-      nextInput.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
+/* Touch swipe setup */
+function setupQuizSwipe() {
+  const viewport = document.getElementById("quiz-viewport");
+  if (!viewport) return;
+
+  let startX = 0, startY = 0;
+
+  viewport.addEventListener("touchstart", (e) => {
+    startX = e.changedTouches[0].clientX;
+    startY = e.changedTouches[0].clientY;
+    quizSwipeLocked = false;
+  }, { passive: true });
+
+  viewport.addEventListener("touchend", (e) => {
+    if (quizSwipeLocked) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+
+    // Only register horizontal swipe, not accidental vertical scroll
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 48) {
+      quizSwipeLocked = true;
+      if (dx < 0) quizNextCard();
+      else         quizPrevCard();
     }
-  }
-  // Wrap around to first unanswered
-  for (let i = 0; i < currentIndex; i++) {
-    const prevInput = document.getElementById(`input-${i}`);
-    if (prevInput && !prevInput.disabled) {
-      prevInput.focus();
-      prevInput.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
+  }, { passive: true });
+}
+
+/* Keyboard Enter key for quiz input */
+function setupQuizKeyboard() {
+  const input = document.getElementById("quiz-main-input");
+  if (!input) return;
+
+  let lastEnter = false;
+
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.keyCode === 13) {
+      lastEnter = true;
+      e.preventDefault();
+      submitCurrentCard();
     }
-  }
+  });
+
+  input.addEventListener("keyup", (e) => {
+    if ((e.key === "Enter" || e.keyCode === 13) && !lastEnter) {
+      e.preventDefault();
+      submitCurrentCard();
+    }
+    lastEnter = false;
+  });
+
+  // Mobile: some keyboards fire newline via "input" event
+  input.addEventListener("input", function () {
+    if (this.value.endsWith("\n") || this.value.endsWith("\r")) {
+      this.value = this.value.replace(/[\r\n]/g, "");
+      submitCurrentCard();
+    }
+  });
 }
 
 async function confirmEndQuiz() {
   const confirmed = await confirmDialog(
     "Akhiri Sesi Kuis?",
-    "Progress kamu saat ini akan hilang. Yakin ingin keluar?",
+    "Progress kamu saat ini akan hilang. Yakin ingin keluar?"
   );
   if (confirmed) showView("dashboard");
 }
@@ -616,13 +818,35 @@ function exportToImage() {
     return;
   }
 
-  document.getElementById("export-header-title").textContent =
-    setNames.join(" & ");
+  const titleEl = document.getElementById("export-header-title");
+  const titleText = setNames.join(" & ");
+  titleEl.textContent = titleText;
+
+  // Dynamic font size: prevent overflow on long titles
+  if (titleText.length > 80) {
+    titleEl.style.fontSize = "22px";
+    titleEl.style.padding = "12px 28px";
+  } else if (titleText.length > 50) {
+    titleEl.style.fontSize = "28px";
+    titleEl.style.padding = "13px 32px";
+  } else if (titleText.length > 30) {
+    titleEl.style.fontSize = "36px";
+    titleEl.style.padding = "14px 36px";
+  } else {
+    titleEl.style.fontSize = "44px";
+    titleEl.style.padding = "14px 40px";
+  }
+
+  // Update header line to include diamond ornament
+  const headerLine = document.querySelector(".export-header-line");
+  if (headerLine) {
+    headerLine.innerHTML = `<div class="export-header-line-diamond"></div>`;
+  }
 
   const grid = document.getElementById("export-grid-content");
   grid.innerHTML = "";
 
-  itemsToExport.forEach((item) => {
+  itemsToExport.forEach((item, idx) => {
     const card = document.createElement("div");
     card.className = "export-card";
     const contentHtml =
@@ -631,11 +855,11 @@ function exportToImage() {
         : escHtml(item.content);
     card.innerHTML = `
       <div class="export-card-top">
-        <div class="export-card-dot"></div>
+        <div class="export-card-dot">${idx + 1}</div>
         ${contentHtml}
       </div>
       <div class="export-card-bottom">
-        <span style="color:#55556a;font-size:12px;font-family:'Syne',sans-serif;">→</span>
+        <span style="color:rgba(212,168,83,0.5);font-size:13px;font-family:'Syne',sans-serif;">→</span>
         <span class="export-card-answer">${escHtml(item.answer)}</span>
       </div>`;
     grid.appendChild(card);
@@ -646,7 +870,7 @@ function exportToImage() {
 
   html2canvas(exportContainer, {
     useCORS: true,
-    backgroundColor: "#0d0d14",
+    backgroundColor: "#08071a",
     scale: 1.5,
   })
     .then((canvas) => {
@@ -723,6 +947,58 @@ async function restoreFromFile(event) {
   };
   reader.readAsText(file);
   event.target.value = "";
+}
+
+/* ================================================================
+   COLLAPSIBLE PANELS
+================================================================ */
+function togglePanel(panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+  const wrapper = panel.closest(".collapsible-panel");
+  wrapper.classList.toggle("open");
+}
+
+/* ================================================================
+   SET SEARCH / FILTER
+================================================================ */
+function filterSets() {
+  const q = document.getElementById("set-search").value.toLowerCase().trim();
+  document.querySelectorAll("#set-list .set-item").forEach((item) => {
+    const name = item.querySelector(".set-name")?.textContent.toLowerCase() || "";
+    item.style.display = !q || name.includes(q) ? "" : "none";
+  });
+}
+
+/* ================================================================
+   SELECT ALL / DESELECT ALL
+================================================================ */
+function toggleSelectAll() {
+  const checkboxes = document.querySelectorAll(".set-checkbox");
+  const allChecked = [...checkboxes].every((cb) => cb.checked);
+  checkboxes.forEach((cb) => { cb.checked = !allChecked; });
+  const btn = document.getElementById("btn-select-all");
+  if (btn) btn.textContent = allChecked ? "Pilih Semua" : "Batal Semua";
+  updateStickyBar();
+}
+
+/* ================================================================
+   STICKY ACTION BAR — update count badge + select all label
+================================================================ */
+function updateStickyBar() {
+  const checkboxes = document.querySelectorAll(".set-checkbox");
+  const checked = [...checkboxes].filter((cb) => cb.checked);
+  const badge = document.getElementById("sticky-selected-count");
+  const btn = document.getElementById("btn-select-all");
+
+  if (badge) {
+    badge.textContent = `${checked.length} dipilih`;
+    badge.classList.toggle("has-selection", checked.length > 0);
+  }
+  if (btn) {
+    const allChecked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    btn.textContent = allChecked ? "Batal Semua" : "Pilih Semua";
+  }
 }
 
 /* ================================================================
