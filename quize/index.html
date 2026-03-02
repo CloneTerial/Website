@@ -221,7 +221,7 @@
       <!-- ====================== VIEW: QUIZ ====================== -->
       <div id="view-quiz" class="view hidden">
 
-        <!-- TOP BAR: fixed, always visible -->
+        <!-- STICKY TOP BAR -->
         <div class="quiz-topbar">
           <button class="btn btn-red btn-sm" onclick="confirmEndQuiz()">
             <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -232,59 +232,25 @@
               <div class="quiz-progress-bar" id="quiz-progress-bar" style="width:0%"></div>
             </div>
             <div class="quiz-meta-row">
-              <span>✓ <strong id="quiz-correct-count">0</strong>/<strong id="quiz-total-count">0</strong></span>
-              <span id="quiz-card-counter" class="quiz-card-counter">1/1</span>
+              <span>✓ <strong id="quiz-correct-count">0</strong> / <strong id="quiz-total-count">0</strong> benar</span>
+              <span id="quiz-remaining-label" style="color:var(--text3);font-size:0.72rem;"></span>
             </div>
           </div>
         </div>
 
-        <!-- CARD VIEWPORT: swipeable area -->
-        <div class="quiz-viewport" id="quiz-viewport">
-          <button class="quiz-nav-arrow quiz-nav-prev" id="btn-quiz-prev" onclick="quizPrevCard()" aria-label="Soal sebelumnya">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-          </button>
-
-          <div class="quiz-card-wrap">
-            <div class="quiz-card-single" id="quiz-active-card">
-              <div class="quiz-card-media" id="quiz-card-display">
-                <!-- injected by JS -->
-              </div>
-            </div>
+        <!-- SCROLLABLE GRID AREA -->
+        <div class="quiz-grid-scroll" id="quiz-grid-scroll">
+          <div class="quiz-box-grid" id="quiz-box-grid">
+            <!-- Cards injected by JS -->
           </div>
 
-          <button class="quiz-nav-arrow quiz-nav-next" id="btn-quiz-next" onclick="quizNextCard()" aria-label="Soal berikutnya">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-          </button>
-        </div>
-
-        <!-- DOTS: progress indicator -->
-        <div class="quiz-dots-bar" id="quiz-dots-bar"></div>
-
-        <!-- BOTTOM BAR: input always visible -->
-        <div class="quiz-input-bar" id="quiz-input-bar">
-          <input
-            type="text"
-            id="quiz-main-input"
-            class="quiz-main-input"
-            placeholder="Ketik jawaban…"
-            autocomplete="off"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-            inputmode="text"
-            enterkeyhint="done"
-          />
-          <button class="btn-submit-answer" id="btn-submit-main" aria-label="Cek jawaban" onclick="submitCurrentCard()">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </button>
-        </div>
-
-        <!-- FINISH PANEL: appears when all answered -->
-        <div class="quiz-finish-area" id="quiz-finish-area">
-          <button class="btn btn-green btn-lg" onclick="showStats()">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
-            Konfirmasi &amp; Lihat Hasil
-          </button>
+          <!-- FINISH BUTTON — appears when all done -->
+          <div class="quiz-finish-area" id="quiz-finish-area" style="display:none;">
+            <button class="btn btn-green btn-lg" style="width:100%;justify-content:center;" onclick="showStats()">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+              Lihat Hasil Kuis
+            </button>
+          </div>
         </div>
 
       </div>

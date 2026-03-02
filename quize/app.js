@@ -386,10 +386,10 @@ function deleteItem(index) {
 }
 
 /* ================================================================
-   QUIZ — SINGLE CARD FOCUS MODE
+   QUIZ — GRID BOX SYSTEM
 ================================================================ */
-let quizCurrentIdx = 0;
-let quizSwipeLocked = false; // prevents rapid swipe double-fire
+let quizCurrentIdx = 0; // kept for stats compat
+let quizSwipeLocked = false;
 
 function startQuiz() {
   const checkboxes = document.querySelectorAll(".set-checkbox:checked");
@@ -400,7 +400,6 @@ function startQuiz() {
 
   currentQuizSession = [];
   correctCount = 0;
-  quizCurrentIdx = 0;
   pendingCards.clear();
 
   checkboxes.forEach((cb) => {
@@ -431,270 +430,175 @@ function startQuiz() {
   document.getElementById("quiz-correct-count").textContent = 0;
   document.getElementById("quiz-progress-bar").style.width = "0%";
   document.getElementById("quiz-finish-area").style.display = "none";
+  updateRemainingLabel();
 
-  setupQuizSwipe();
-  setupQuizKeyboard();
-
+  renderQuizGrid();
   showView("quiz");
-  goToCard(0, false);
 
-  // Focus input after animation
+  // Focus first input after animation
   setTimeout(() => {
-    document.getElementById("quiz-main-input")?.focus();
-  }, 320);
+    const first = document.getElementById("qbox-input-0");
+    if (first) first.focus();
+  }, 300);
 }
 
-/* Navigate to a specific card index */
-function goToCard(idx, animate = true) {
-  if (idx < 0 || idx >= currentQuizSession.length) return;
+/* Render all cards as grid boxes */
+function renderQuizGrid() {
+  const grid = document.getElementById("quiz-box-grid");
+  grid.innerHTML = "";
 
-  const prev = quizCurrentIdx;
-  quizCurrentIdx = idx;
-  const item = currentQuizSession[idx];
+  currentQuizSession.forEach((item, idx) => {
+    const box = document.createElement("div");
+    box.className = "quiz-box";
+    box.id = `qbox-${idx}`;
 
-  const card    = document.getElementById("quiz-active-card");
-  const display = document.getElementById("quiz-card-display");
-  const input   = document.getElementById("quiz-main-input");
-  const submit  = document.getElementById("btn-submit-main");
+    const questionHtml = item.type === "image"
+      ? `<img src="${escHtml(item.content)}" alt="Soal ${idx + 1}" loading="lazy">`
+      : `<div class="quiz-box-qtext">${escHtml(item.content)}</div>`;
 
-  // --- Card slide animation ---
-  if (animate && card) {
-    const dir = idx > prev ? 1 : -1;
-    card.style.transition = "none";
-    card.style.transform  = `translateX(${dir * 55}px)`;
-    card.style.opacity    = "0";
-    card.offsetHeight; // reflow
-    card.style.transition = "transform 0.28s cubic-bezier(0.22,1,0.36,1), opacity 0.25s ease";
-    card.style.transform  = "translateX(0)";
-    card.style.opacity    = "1";
-  }
-
-  // --- Render question content ---
-  if (display) {
-    display.innerHTML = item.type === "image"
-      ? `<img src="${escHtml(item.content)}" alt="Soal gambar">`
-      : `<div class="quiz-question-text">${escHtml(item.content)}</div>`;
-  }
-
-  // --- Input + card state ---
-  if (card)  card.classList.remove("state-correct", "state-wrong");
-  if (input && submit) {
-    if (item.answered) {
-      input.value   = item.answer;
-      input.disabled = true;
-      submit.disabled = true;
-      input.classList.add("state-correct-input");
-      card?.classList.add("state-correct");
-    } else if (pendingCards.has(idx)) {
-      input.disabled  = true;
-      submit.disabled = true;
-      card?.classList.add("state-wrong");
-    } else {
-      input.value   = "";
-      input.disabled  = false;
-      submit.disabled = false;
-      input.classList.remove("state-correct-input");
-      // Only auto-focus on desktop (mobile keyboard opens on demand)
-      if (window.innerWidth > 640) input.focus();
-    }
-  }
-
-  // --- Update counter + dots + arrows ---
-  document.getElementById("quiz-card-counter").textContent = `${idx + 1}/${currentQuizSession.length}`;
-  updateQuizDots();
-  updateQuizArrows();
-
-  // Subtle haptic
-  if (animate && navigator.vibrate) navigator.vibrate(8);
-}
-
-/* Quick helpers */
-function quizNextCard() {
-  if (quizCurrentIdx < currentQuizSession.length - 1) goToCard(quizCurrentIdx + 1);
-}
-
-function quizPrevCard() {
-  if (quizCurrentIdx > 0) goToCard(quizCurrentIdx - 1);
-}
-
-function updateQuizArrows() {
-  const prev = document.getElementById("btn-quiz-prev");
-  const next = document.getElementById("btn-quiz-next");
-  if (prev) prev.style.opacity = quizCurrentIdx === 0 ? "0.25" : "1";
-  if (next) next.style.opacity = quizCurrentIdx === currentQuizSession.length - 1 ? "0.25" : "1";
-}
-
-function updateQuizDots() {
-  const bar   = document.getElementById("quiz-dots-bar");
-  const total = currentQuizSession.length;
-  if (!bar) return;
-
-  // Too many? Show text summary instead of dots
-  if (total > 20) {
-    const done = currentQuizSession.filter(i => i.answered).length;
-    bar.innerHTML = `
-      <div class="quiz-dots-text">
-        <span class="dot-answered">✓ ${done} selesai</span>
-        <span class="dot-sep">·</span>
-        <span class="dot-remaining">${total - done} tersisa</span>
-        <span class="dot-sep">·</span>
-        <span style="color:var(--text3)">${quizCurrentIdx + 1}/${total}</span>
+    box.innerHTML = `
+      <span class="quiz-box-num">${idx + 1}</span>
+      <div class="quiz-box-question">${questionHtml}</div>
+      <div class="quiz-box-input-wrap">
+        <input
+          type="text"
+          id="qbox-input-${idx}"
+          class="quiz-box-input"
+          placeholder="jawaban…"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          inputmode="text"
+          enterkeyhint="next"
+          data-idx="${idx}"
+        />
       </div>`;
-    return;
-  }
 
-  bar.innerHTML = "";
-  currentQuizSession.forEach((item, i) => {
-    const dot = document.createElement("div");
-    dot.className = "quiz-dot";
-    if (i === quizCurrentIdx)           dot.classList.add("quiz-dot-current");
-    else if (item.answered && item.wrongCount === 0) dot.classList.add("quiz-dot-perfect");
-    else if (item.answered)              dot.classList.add("quiz-dot-done");
-    else if (pendingCards.has(i))        dot.classList.add("quiz-dot-wrong");
-    dot.onclick = () => goToCard(i);
-    bar.appendChild(dot);
+    grid.appendChild(box);
+
+    const input = document.getElementById(`qbox-input-${idx}`);
+
+    // ── ENTER: check then move to next unanswered ──
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.keyCode === 13) {
+        e.preventDefault();
+        checkBoxAnswer(idx, true);
+      }
+    });
+
+    // Mobile fallback: some keyboards fire via "input" event with newline
+    input.addEventListener("input", function () {
+      if (this.value.endsWith("\n") || this.value.endsWith("\r")) {
+        this.value = this.value.replace(/[\r\n]/g, "");
+        checkBoxAnswer(idx, true);
+      }
+    });
+
+    // ── BLUR: auto-check when user taps/clicks another box ──
+    input.addEventListener("blur", () => {
+      if (!input.value.trim()) return;
+      if (pendingCards.has(idx)) return;
+      const box = document.getElementById(`qbox-${idx}`);
+      if (box.classList.contains("state-correct")) return;
+      checkBoxAnswer(idx, false); // false = don't auto-advance on blur
+    });
   });
 }
 
-/* Submit answer for current card */
-function submitCurrentCard() {
-  const idx    = quizCurrentIdx;
-  const item   = currentQuizSession[idx];
-  const input  = document.getElementById("quiz-main-input");
-  const submit = document.getElementById("btn-submit-main");
-  const card   = document.getElementById("quiz-active-card");
+/* Core check logic for a box */
+function checkBoxAnswer(idx, autoAdvance) {
+  if (pendingCards.has(idx)) return;
 
-  if (!input || item.answered || pendingCards.has(idx)) return;
+  const item  = currentQuizSession[idx];
+  const box   = document.getElementById(`qbox-${idx}`);
+  const input = document.getElementById(`qbox-input-${idx}`);
+
+  if (!input || item.answered) return;
 
   const userAnswer = input.value.trim();
 
   if (!userAnswer) {
+    // Empty shake
     input.classList.add("shake-input");
-    setTimeout(() => input.classList.remove("shake-input"), 400);
-    if (navigator.vibrate) navigator.vibrate([30, 30, 30]);
+    setTimeout(() => input.classList.remove("shake-input"), 350);
     return;
   }
 
   if (userAnswer.toLowerCase() === item.answer.toLowerCase()) {
-    // ✅ Correct
+    // ✅ CORRECT
     item.answered = true;
     correctCount++;
+    box.classList.add("state-correct");
+    input.disabled = true;
+    if (navigator.vibrate) navigator.vibrate(55);
 
-    card?.classList.add("state-correct");
-    input.classList.add("state-correct-input");
-    input.disabled  = true;
-    submit.disabled = true;
-
+    // Update progress
     document.getElementById("quiz-correct-count").textContent = correctCount;
     document.getElementById("quiz-progress-bar").style.width =
       `${(correctCount / currentQuizSession.length) * 100}%`;
-
-    updateQuizDots();
-    if (navigator.vibrate) navigator.vibrate(60);
+    updateRemainingLabel();
 
     if (correctCount === currentQuizSession.length) {
-      // 🎉 All done
+      // 🎉 All done — show finish button
       setTimeout(() => {
-        const finishArea = document.getElementById("quiz-finish-area");
-        if (finishArea) finishArea.style.display = "flex";
+        const fa = document.getElementById("quiz-finish-area");
+        if (fa) { fa.style.display = "block"; fa.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
         showToast("🎉 Semua soal berhasil dijawab!", "success", 4000);
-      }, 600);
-    } else {
-      // Auto-advance to next unanswered after brief green flash
-      setTimeout(() => {
-        let next = -1;
-        for (let i = idx + 1; i < currentQuizSession.length; i++) {
-          if (!currentQuizSession[i].answered) { next = i; break; }
-        }
-        if (next === -1) {
-          for (let i = 0; i < idx; i++) {
-            if (!currentQuizSession[i].answered) { next = i; break; }
-          }
-        }
-        if (next !== -1) goToCard(next);
-      }, 450);
+      }, 400);
+    } else if (autoAdvance) {
+      // Move focus to next unanswered input
+      focusNextBox(idx);
     }
   } else {
-    // ❌ Wrong
+    // ❌ WRONG
     item.wrongCount++;
-    card?.classList.add("state-wrong");
+    box.classList.add("state-wrong");
     pendingCards.add(idx);
-    input.disabled  = true;
-    submit.disabled = true;
-
-    if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
-    updateQuizDots();
+    input.disabled = true;
+    if (navigator.vibrate) navigator.vibrate([30, 25, 30]);
 
     setTimeout(() => {
-      card?.classList.remove("state-wrong");
-      input.disabled  = false;
-      submit.disabled = false;
-      input.value     = "";
-      input.classList.remove("state-correct-input");
-      input.focus();
+      box.classList.remove("state-wrong");
+      input.disabled = false;
+      input.value = "";
       pendingCards.delete(idx);
-      updateQuizDots();
-    }, 900);
+      // Re-focus same box so they can retry immediately
+      input.focus();
+    }, 750);
   }
 }
 
-/* Touch swipe setup */
-function setupQuizSwipe() {
-  const viewport = document.getElementById("quiz-viewport");
-  if (!viewport) return;
-
-  let startX = 0, startY = 0;
-
-  viewport.addEventListener("touchstart", (e) => {
-    startX = e.changedTouches[0].clientX;
-    startY = e.changedTouches[0].clientY;
-    quizSwipeLocked = false;
-  }, { passive: true });
-
-  viewport.addEventListener("touchend", (e) => {
-    if (quizSwipeLocked) return;
-    const dx = e.changedTouches[0].clientX - startX;
-    const dy = e.changedTouches[0].clientY - startY;
-
-    // Only register horizontal swipe, not accidental vertical scroll
-    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 48) {
-      quizSwipeLocked = true;
-      if (dx < 0) quizNextCard();
-      else         quizPrevCard();
+/* Focus next unanswered box after correct answer */
+function focusNextBox(currentIdx) {
+  for (let i = currentIdx + 1; i < currentQuizSession.length; i++) {
+    if (!currentQuizSession[i].answered) {
+      const next = document.getElementById(`qbox-input-${i}`);
+      if (next) {
+        next.focus();
+        next.closest(".quiz-box")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
     }
-  }, { passive: true });
+  }
+  // Wrap around
+  for (let i = 0; i < currentIdx; i++) {
+    if (!currentQuizSession[i].answered) {
+      const next = document.getElementById(`qbox-input-${i}`);
+      if (next) {
+        next.focus();
+        next.closest(".quiz-box")?.scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+    }
+  }
 }
 
-/* Keyboard Enter key for quiz input */
-function setupQuizKeyboard() {
-  const input = document.getElementById("quiz-main-input");
-  if (!input) return;
-
-  let lastEnter = false;
-
-  input.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.keyCode === 13) {
-      lastEnter = true;
-      e.preventDefault();
-      submitCurrentCard();
-    }
-  });
-
-  input.addEventListener("keyup", (e) => {
-    if ((e.key === "Enter" || e.keyCode === 13) && !lastEnter) {
-      e.preventDefault();
-      submitCurrentCard();
-    }
-    lastEnter = false;
-  });
-
-  // Mobile: some keyboards fire newline via "input" event
-  input.addEventListener("input", function () {
-    if (this.value.endsWith("\n") || this.value.endsWith("\r")) {
-      this.value = this.value.replace(/[\r\n]/g, "");
-      submitCurrentCard();
-    }
-  });
+function updateRemainingLabel() {
+  const el = document.getElementById("quiz-remaining-label");
+  if (!el) return;
+  const remaining = currentQuizSession.length - correctCount;
+  el.textContent = remaining > 0 ? `${remaining} tersisa` : "";
 }
 
 async function confirmEndQuiz() {
